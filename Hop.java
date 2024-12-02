@@ -31,7 +31,7 @@ public class Hop {
     }
 
     public boolean over() {
-        return axel.getY() <= 0; 
+        return !axel.isSurviving();
     }
 
     public static void main(String[] args) {
