@@ -1,0 +1,82 @@
+Description du jeu.
+Volcan. Le volcan (classe Field) est un conduit vertical de largeur fixe, contenant des blocs rocheux
+horizontaux de tailles variées sur lesquelles le joueur peut prendre pied. Chaque élément est repéré dans
+le volcan par :
+— une altitude, comptée à partir de 0 ;
+— une coordonnée horizontale, comprise entre 0 et la largeur.
+La zone de jeu est une portion du volcan de hauteur fixe à partir de l’altitude atteinte par la lave. L’état du
+jeu est mis à jour toutes les 40 millisecondes (25 tours de jeu par seconde), des deux manières suivantes :
+— le joueur se déplace, suivant les touches actionnées par le joueur et les (dures) lois de la gravité,
+— l’altitude atteinte par la lave augmente, entraînant un glissement vers le haut de la zone de jeu, qui
+se traduit à l’écran par un déplacement apparent vers le bas des blocs et du joueur.
+
+Le jeu se termine lorsque le joueur touche le bas de l’écran, que ce soit à cause d’une chute ou car il
+se fait simplement « rattraper » par le déplacement de la zone de jeu. De nouveau blocs apparaissent
+périodiquement en haut de l’écran, à mesure qu’ils sont « découverts » par la progression de la zone de
+jeu.
+1
+Blocs rocheux. Les blocs rocheux (classe Block) sont représentés par des rectangles horizontaux. Dans
+le jeu, on ne s’intéresse qu’à la face supérieure de chaque bloc, sur laquelle le joueur peut se poser. Cette
+face supérieure est caractérisée par une altitude, une position horizontale (abscisse) et une largeur.
+Face supérieure
+Altitude
+Largeur
+Abscisse
+On ne s’intéresse qu’aux blocs qui sont dans la zone de jeu. Lors de la phase montant d’un saut, le joueur
+peut traverser un bloc. Lors de la phase descendante en revanche, le joueur se pose sur la face supérieure
+du premier bloc rencontré.
+Mouvements du personnage. Le personnage (classe Axel 1) est représenté par un cercle, dont on
+prend comme coordonnée de référence le point le plus bas.
+Altitude
+Un état booléen indique si le personnage choit ou est au repos (sur un bloc). Le personnage a également
+une vitesse verticale, qui décrit sa variation d’altitude lors d’un tour de jeu. Cette vitesse est positive
+lors de la phase ascendante d’un saut, et négative lors de la phase descendante d’un saut ou d’une chute.
+À chaque tour, cette vitesse est modifiée par la gravité et les éventuelles actions du joueur. Note : si le
+personnage est au repos, sa vitesse verticale vaut nécessairement zéro, mais l’inverse n’est pas vrai.
+À chaque tour, on calcule la prochaine position du personnage en fonction de son état courant,
+et de quatre booléens supplémentaires indiquant, pour chacune des flèches directionnelles, si elle est
+actuellement enfoncée par le joueur.
+Mise à jour de l’abscisse
+Si les flèches gauche ou droite sont enfoncées, le joueur se déplace à chaque tour d’une distance
+fixe dans la direction concernée, dans les limites du terrain. En l’absence d’action du joueur, il n’y
+a pas de déplacement horizontal. Ces règles valent quel que soit l’état du personnage.
+Mise à jour de l’altitude, pour un personnage au repos
+Si la flèche haut est enfoncée, le personnage commence un saut, ce qui fixe sa vitesse verticale au
+maximum, et le fait passer en état de chute. Le personnage se déplace vers le haut de la distance
+donnée par sa vitesse. Sinon, la vitesse verticale reste à zéro et l’altitude du personnage ne change
+pas.
+Mise à jour de l’altitude, pour un personnage en chute
+La vitesse verticale est décrémentée d’une constante représentant la gravité. Si la touche bas est
+enfoncée, la vitesse verticale est décrémentée d’une valeur fixe supplémentaire.
+— Si la vitesse verticale est positive, le personnage se déplace vers le haut de la distance corres-
+pondante.
+— Si la vitesse verticale est négative, le personnage se déplace vers le bas de la distance corres-
+pondante. Exception : si ce mouvement de descente lui fait traverser la face supérieure d’un
+bloc, alors le personnage s’arrête sur la surface du bloc et passe en état de repos avec une
+vitesse verticale à zéro.
+3
+Paramètres du jeu. À titre d’information, voici les valeurs utilisées dans la version de démonstration
+pour les différents paramètres du jeu (constantes du jeu, et valeurs dépendant du niveau de difficulté).
+On vous recommande de les utiliser dans un premier temps pour un jeu équilibré. Vous pouvez ensuite
+les ajuster en fonction de vos propres expérimentations et des améliorations que vous apportez au projet.
+Vous pouvez y compris transformer certains constantes en valeurs qui dépendent du niveau de difficulté.
+Constantes
+Classe Constante Signification Valeur
+Hop WIDTH largeur du terrain 400
+HEIGHT hauteur du terrain 600
+DELAY durée d’un tour de jeu (millisecondes) Field START_ALTITUDE altitude du premier bloc 40
+ALTITUDE_GAP écart d’altitude entre deux blocs Axel LATERAL_SPEED valeur de déplacement latéral par tour 8
+JUMP_SPEED vitesse verticale au début d’un saut 20
+GRAVITY décroissance de la vitesse verticale à chaque tour DIVE_SPEED décroissance suppl. vitesse verticale en piqué 3
+MAX_FALL_SPEED limite de vitesse verticale négative GamePanel BLOCK_HEIGHT hauteur des blocs (affichage) 40
+80
+1
+-20
+10
+AXEL_WIDTH largeur du personnage (affichage) 10
+AXEL_HEIGHT hauteur du personnage (affichage) 10
+Valeurs dépendant du niveau
+Niveau 0 1 2 3 4 5 6
+atteint à l’altitude 0 80 800 2000 3200 4800 7200
+Défilement vertical du terrain 0 1 2 3 4 5 Largeur bloc minimale 50 45 40 35 30 25 20
+Largeur bloc maximale 100 90 80 70 60 50 40
