@@ -23,7 +23,9 @@ public class Axel {
 
     private double ySpeed;
 
-    private boolean canJump = true; // Add this new field
+    private boolean canJump = true; 
+
+    private Block currentBlock;
 
     public Axel(Field f, int x, int y) {
         this.field = f;
@@ -84,12 +86,13 @@ public class Axel {
         for (Block block : field.getBlocks()) {
             boolean onBlock = (x + AXEL_WIDTH / 2 > block.getX()) &&
                               (x - AXEL_WIDTH / 2 < block.getX() + block.getWidth()) &&
-                              (y == block.getY());
+                              (y == block.getY() + 10);
             if (onBlock) {
-                //canJump = true;
+                currentBlock = block;
                 return true;
             }
         }
+        currentBlock = null;
         return false;
     }
 
@@ -108,6 +111,10 @@ public class Axel {
             }
         }
         return false;
+    }
+
+    public Block getCurrentBlock() {
+        return currentBlock;
     }
 
     public int getX() { return x; }

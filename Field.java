@@ -11,8 +11,8 @@ public class Field {
     public final int width, height;
     private int bottom, top; // bottom and top altitude
     private List<Block> blocks;
-    private int currentLevel = 0;
-    private int scrollSpeed = 1;
+    private double scrollSpeed = 1;
+    private int totalScroll = 0;
 
     public Field(int width, int height) {
         this.width = width;
@@ -30,11 +30,14 @@ public class Field {
         }
     }
 
-    public void update() {
-        scrollSpeed = 1 + (currentLevel / 1000);
+    public void update(double difficulty) {
+        scrollSpeed = difficulty * 2;
+        int scrollAmount = (int)scrollSpeed;
+        totalScroll += scrollAmount;
+        
         for (Block block : blocks) {
             blocks.set(blocks.indexOf(block), 
-                new Block(block.getX(), block.getY() + scrollSpeed, block.getWidth()));
+                new Block(block.getX(), block.getY() + scrollAmount, block.getWidth()));
         }
 
     
@@ -44,6 +47,7 @@ public class Field {
                 highestY = block.getY();
             }
         }
+
         blocks.removeIf(block -> block.getY() > height);
 
         if (highestY > START_ALTITUDE) {
@@ -52,7 +56,9 @@ public class Field {
             int blockX = rand.nextInt(width - blockWidth);
             blocks.add(new Block(blockX, highestY - ALTITUDE_GAP, blockWidth));
         }
-        currentLevel += scrollSpeed;
+
+        
+
     }
 
     public List<Block> getBlocks() {
@@ -63,8 +69,8 @@ public class Field {
         return blocks.get(6);
     }
 
-    // Add getter for current level
-    public int getCurrentLevel() {
-        return currentLevel;
+    public int getTotalScroll() {
+        return totalScroll;
     }
+
 }

@@ -11,6 +11,7 @@ public class Hop {
     private final Axel axel;
     private Timer timer;
     private GamePanel gamePanel;
+    private double difficulty = 1.0;
 
 
     public Hop() {
@@ -25,9 +26,11 @@ public class Hop {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 
+
     public void round() {
         axel.update();
-        field.update();
+        field.update(difficulty);
+        difficulty = 1.0 + (gamePanel.getScore() / 500);
         frame.repaint();
         gamePanel.addScore();
     }

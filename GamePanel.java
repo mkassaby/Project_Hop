@@ -12,7 +12,9 @@ public class GamePanel extends JPanel implements KeyListener {
     private final Field field;
 
     private int score = 0;
-    private int highestY =600;
+    private int highestY = 600; 
+    private int lastBlockY = 600;  // Initialize to bottom of screen
+
     public GamePanel(Field field, Axel axel) {
         this.field = field;
         this.axel = axel;
@@ -24,9 +26,10 @@ public class GamePanel extends JPanel implements KeyListener {
 
     public void addScore() {
         if (axel.checkStandingOnBlock()) {
-            if (axel.getY() < highestY) {
-                highestY = axel.getY();
-                score = field.height - highestY; 
+            Block currentBlock = axel.getCurrentBlock();
+            if (currentBlock != null && currentBlock.getY() < lastBlockY) {
+                score += (lastBlockY - currentBlock.getY());
+                lastBlockY = currentBlock.getY();
             }
         }
     }
@@ -69,4 +72,8 @@ public class GamePanel extends JPanel implements KeyListener {
 
     @Override
     public void keyTyped(KeyEvent e) { }
+
+    public double getScore(){
+        return this.score;
+    }
 }
