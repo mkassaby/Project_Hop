@@ -32,57 +32,44 @@ public class Axel {
         this.surviving = true;
     }
 
-
-
     public void computeMove() {
         if (left && x > 0) x -= LATERAL_SPEED;
-        if (right && x < field.width - AXEL_WIDTH) {
-            x += LATERAL_SPEED;
-            if (x > field.width - AXEL_WIDTH) {
-                x = field.width - AXEL_WIDTH;
-            }
-        }
+        if (right && x < field.width - AXEL_WIDTH) x += LATERAL_SPEED;
         
+
+        //boolean onBlock = checkStandingOnBlock();
         if (!checkStandingOnBlock()) {
             falling = true;
-            canJump = false; 
         } else {
-            canJump = true; 
+            falling = false;
+            canJump = true;
+            ySpeed = 0;
         }
 
-        if (falling ) {
+        if (jumping && canJump) {
+            ySpeed = JUMP_SPEED;
+            falling = true;
+            jumping = false;
+            canJump = false;
+        }
+
+
+        if (falling) {
             ySpeed -= GRAVITY;
             if (diving) {
                 ySpeed -= DIVE_SPEED;
                 diving = false;
-                if (ySpeed < MAX_FALL_SPEED) {
-                    ySpeed = MAX_FALL_SPEED;
-                }
             }
             if (ySpeed < MAX_FALL_SPEED) {
                 ySpeed = MAX_FALL_SPEED;
             }
         }
-    
-        if (jumping && !falling && canJump) { 
-            ySpeed = JUMP_SPEED;
-            falling = true;
-            jumping = false;
-            canJump = false; 
-        }
-
-        if(jumping && !canJump){
-            jumping = false;
-            ySpeed = 0;
-
-        }
-    
         y -= ySpeed;
-    
+
         if (falling) {
             checkCollision();
         }
-    
+
         if (y > field.height) {
             surviving = false;
         }
@@ -99,7 +86,7 @@ public class Axel {
                               (x - AXEL_WIDTH / 2 < block.getX() + block.getWidth()) &&
                               (y == block.getY());
             if (onBlock) {
-                canJump = true;
+                //canJump = true;
                 return true;
             }
         }
@@ -108,22 +95,20 @@ public class Axel {
 
     public boolean checkCollision() {
         for (Block block : field.getBlocks()) {
-            boolean xOverlap = (x - AXEL_WIDTH / 2) < (block.getX() + block.getWidth()) && 
-                               (x + AXEL_WIDTH / 2) > block.getX();
-            boolean yTouch = y <= block.getY() + 10  && y >= block.getY() - AXEL_HEIGHT - 10 ;
-            boolean isFalling = ySpeed < 0;
-
-            if (xOverlap && yTouch && (isFalling)  ) { 
-                y = block.getY(); 
+            boolean xOverlap = (x + AXEL_WIDTH/2 > block.getX()) && 
+                             (x - AXEL_WIDTH/2 < block.getX() + block.getWidth());
+            boolean yTouch = y >= block.getY() - AXEL_HEIGHT && y <= block.getY() + BLOCK_HEIGHT;
+            
+            if (xOverlap && yTouch && ySpeed < 0) {
+                y = block.getY();
                 ySpeed = 0;
                 falling = false;
+                canJump = true;
                 return true;
             }
         }
         return false;
     }
-
-
 
     public int getX() { return x; }
     public int getY() { return y; }
@@ -142,14 +127,12 @@ public class Axel {
 
     public void jump() {
         if (canJump) {
-            //yVelocity = JUMP_SPEED;
             jumping = true;
             canJump = false;
         }
     }
 
     public void dive() {
-        //yVelocity = DIVE_SPEED;
         diving = true;
     }
 
