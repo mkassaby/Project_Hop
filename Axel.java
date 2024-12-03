@@ -11,7 +11,7 @@ public class Axel {
 
     private int x, y;
 
-    private boolean falling = true;
+    private boolean falling;
     private boolean jumping;
     private boolean diving;
     private boolean left;
@@ -23,6 +23,7 @@ public class Axel {
 
     private double ySpeed;
 
+    private boolean canJump = true; // Add this new field
 
     public Axel(Field f, int x, int y) {
         this.field = f;
@@ -33,7 +34,7 @@ public class Axel {
 
 
 
-    public void update() {
+    public void computeMove() {
         if (left && x > 0) x -= LATERAL_SPEED;
         if (right && x < field.width - AXEL_WIDTH) {
             x += LATERAL_SPEED;
@@ -44,9 +45,12 @@ public class Axel {
         
         if (!checkStandingOnBlock()) {
             falling = true;
+            canJump = false; 
+        } else {
+            canJump = true; 
         }
 
-        if (falling && !jumping) {
+        if (falling ) {
             ySpeed -= GRAVITY;
             if (diving) {
                 ySpeed -= DIVE_SPEED;
@@ -60,48 +64,56 @@ public class Axel {
             }
         }
     
-        if (jumping && !falling) {
+        if (jumping && !falling && canJump) { 
             ySpeed = JUMP_SPEED;
             falling = true;
             jumping = false;
+            canJump = false; 
+        }
+
+        if(jumping && !canJump){
+            jumping = false;
+            ySpeed = 0;
+
         }
     
         y -= ySpeed;
     
         if (falling) {
-            boolean collision = checkCollision();
-            if (collision) {
-                falling = false;
-                ySpeed = 0;
-            }
+            checkCollision();
         }
     
         if (y > field.height) {
             surviving = false;
         }
     }
+
+    public void update() {
+        computeMove();
+    }
         
 
-    private boolean checkStandingOnBlock() {
+    public boolean checkStandingOnBlock() {
         for (Block block : field.getBlocks()) {
             boolean onBlock = (x + AXEL_WIDTH / 2 > block.getX()) &&
                               (x - AXEL_WIDTH / 2 < block.getX() + block.getWidth()) &&
                               (y == block.getY());
             if (onBlock) {
+                canJump = true;
                 return true;
             }
         }
         return false;
     }
 
-    private boolean checkCollision() {
+    public boolean checkCollision() {
         for (Block block : field.getBlocks()) {
             boolean xOverlap = (x - AXEL_WIDTH / 2) < (block.getX() + block.getWidth()) && 
                                (x + AXEL_WIDTH / 2) > block.getX();
-            boolean yTouch = y <= block.getY() && y >= block.getY() - AXEL_HEIGHT;
+            boolean yTouch = y <= block.getY() + 10  && y >= block.getY() - AXEL_HEIGHT - 10 ;
             boolean isFalling = ySpeed < 0;
 
-            if (xOverlap && yTouch && isFalling ) { 
+            if (xOverlap && yTouch && (isFalling)  ) { 
                 y = block.getY(); 
                 ySpeed = 0;
                 falling = false;
@@ -120,15 +132,29 @@ public class Axel {
         return surviving;
     }
 
-    public void setLeft(boolean left) { this.left = left; 
+    public void moveLeft() {
+        left = true;
     }
-    public void setRight(boolean right) { 
-        this.right = right; 
+
+    public void moveRight() {
+        right = true;
     }
-    public void setJumping(boolean jumping) { 
-        this.jumping = jumping; 
+
+    public void jump() {
+        if (canJump) {
+            //yVelocity = JUMP_SPEED;
+            jumping = true;
+            canJump = false;
+        }
     }
-    public void setDiving(boolean diving) { 
-        this.diving = diving; 
+
+    public void dive() {
+        //yVelocity = DIVE_SPEED;
+        diving = true;
+    }
+
+    public void stop() {
+        left = false;
+        right = false;
     }
 }

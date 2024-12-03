@@ -11,6 +11,8 @@ public class GamePanel extends JPanel implements KeyListener {
     private final Axel axel;
     private final Field field;
 
+    private int score = 0;
+    private int highestY =600;
     public GamePanel(Field field, Axel axel) {
         this.field = field;
         this.axel = axel;
@@ -18,6 +20,15 @@ public class GamePanel extends JPanel implements KeyListener {
         setPreferredSize(new Dimension(field.width, field.height));
         setFocusable(true);
         addKeyListener(this);
+    }
+
+    public void addScore() {
+        if (axel.checkStandingOnBlock()) {
+            if (axel.getY() < highestY) {
+                highestY = axel.getY();
+                score = field.height - highestY; 
+            }
+        }
     }
 
     @Override
@@ -32,25 +43,27 @@ public class GamePanel extends JPanel implements KeyListener {
         } //pour dessiner les blocks  
         g.setColor(Color.RED);
         g.fillOval(axel.getX() - AXEL_WIDTH/2,  axel.getY() - AXEL_HEIGHT, AXEL_WIDTH, AXEL_HEIGHT);//desiner l'axel
+
+        g.setColor(Color.BLACK);
+        g.setFont(new Font("Arial", Font.BOLD, 16));
+        g.drawString("Score: " + score , 10, 20);
+
     }
 
     @Override
     public void keyPressed(KeyEvent e) {
         switch (e.getKeyCode()) {
-            case KeyEvent.VK_LEFT:axel.setLeft(true); break;
-            case KeyEvent.VK_RIGHT:axel.setRight(true); break;
-            case KeyEvent.VK_UP:axel.setJumping(true); break;
-            case KeyEvent.VK_DOWN:axel.setDiving(true); break;
+            case KeyEvent.VK_LEFT -> axel.moveLeft();
+            case KeyEvent.VK_RIGHT -> axel.moveRight();
+            case KeyEvent.VK_UP -> axel.jump();
+            case KeyEvent.VK_DOWN -> axel.dive();
         }
     }
 
     @Override
     public void keyReleased(KeyEvent e) {
         switch (e.getKeyCode()) {
-            case KeyEvent.VK_LEFT:axel.setLeft(false); break;
-            case KeyEvent.VK_RIGHT:axel.setRight(false); break;
-            case KeyEvent.VK_UP:axel.setJumping(false); break;
-            case KeyEvent.VK_DOWN:axel.setDiving(false); break;
+            case KeyEvent.VK_LEFT, KeyEvent.VK_RIGHT -> axel.stop();
         }
     }
 

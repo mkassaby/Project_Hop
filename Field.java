@@ -33,4 +33,9 @@ public class Field {
     public List<Block> getBlocks() {
         return blocks;
     }
+
+    public Block getFirstBlock(){
+        return blocks.get(6);
+    }
+
 }

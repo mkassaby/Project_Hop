@@ -12,9 +12,10 @@ public class Hop {
     private Timer timer;
     private GamePanel gamePanel;
 
+
     public Hop() {
         this.field = new Field(WIDTH, HEIGHT);
-        this.axel = new Axel(field, WIDTH/2, field.START_ALTITUDE);
+        this.axel = new Axel(field, field.getFirstBlock().getX()+(field.getFirstBlock().getWidth()/2), field.getFirstBlock().getY());
         this.gamePanel = new GamePanel(field, axel);
 
         this.frame = new JFrame("Hop!");
@@ -28,11 +29,14 @@ public class Hop {
         axel.update();
         field.update();
         frame.repaint();
+        gamePanel.addScore();
     }
 
     public boolean over() {
         return !axel.isSurviving();
     }
+
+
 
     public static void main(String[] args) {
         Hop game = new Hop();
