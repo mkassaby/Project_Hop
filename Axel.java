@@ -25,7 +25,7 @@ public class Axel {
 
     private boolean canJump = true; 
 
-    private Block currentBlock;
+    //private Block currentBlock;
 
     public Axel(Field f, int x, int y) {
         this.field = f;
@@ -40,7 +40,7 @@ public class Axel {
         
 
         //boolean onBlock = checkStandingOnBlock();
-        if (!checkStandingOnBlock()) {
+        if (!checkCollision()) {
             falling = true;
         } else {
             falling = false;
@@ -69,6 +69,7 @@ public class Axel {
         y -= ySpeed;
 
         if (falling) {
+            //currentBlock = null;
             checkCollision();
         }
 
@@ -84,15 +85,12 @@ public class Axel {
 
     public boolean checkStandingOnBlock() {
         for (Block block : field.getBlocks()) {
-            boolean onBlock = (x + AXEL_WIDTH / 2 > block.getX()) &&
-                              (x - AXEL_WIDTH / 2 < block.getX() + block.getWidth()) &&
-                              (y == block.getY() + 10);
-            if (onBlock) {
-                currentBlock = block;
+            if ((x + AXEL_WIDTH/2 > block.getX()) && 
+                (x - AXEL_WIDTH/2 < block.getX() + block.getWidth()) && 
+                (y == block.getY())) {
                 return true;
             }
         }
-        currentBlock = null;
         return false;
     }
 
@@ -107,15 +105,13 @@ public class Axel {
                 ySpeed = 0;
                 falling = false;
                 canJump = true;
+                //currentBlock = block;
                 return true;
             }
         }
         return false;
     }
 
-    public Block getCurrentBlock() {
-        return currentBlock;
-    }
 
     public int getX() { return x; }
     public int getY() { return y; }

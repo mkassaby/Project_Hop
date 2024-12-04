@@ -12,8 +12,9 @@ public class GamePanel extends JPanel implements KeyListener {
     private final Field field;
 
     private int score = 0;
-    private int highestY = 600; 
-    private int lastBlockY = 600;  // Initialize to bottom of screen
+    private int lastBlockY = -1;  // Track the Y position of the last block we stood on
+    private boolean wasOnBlock = false;
+    private double totalScrollSinceLastLanding = 0;
 
     public GamePanel(Field field, Axel axel) {
         this.field = field;
@@ -25,14 +26,51 @@ public class GamePanel extends JPanel implements KeyListener {
     }
 
     public void addScore() {
+        // Track the scroll
+        totalScrollSinceLastLanding += field.getScrollSpeed();
+        
         if (axel.checkStandingOnBlock()) {
-            Block currentBlock = axel.getCurrentBlock();
-            if (currentBlock != null && currentBlock.getY() < lastBlockY) {
-                score += (lastBlockY - currentBlock.getY());
-                lastBlockY = currentBlock.getY();
+            int currentBlockY = getCurrentBlockY();
+            
+            if (!wasOnBlock) {  
+                if (lastBlockY != -1) {
+                    int scrollAdjustedLastY = lastBlockY + (int)totalScrollSinceLastLanding;
+                    int heightDifference = scrollAdjustedLastY - currentBlockY;
+                    
+                    if (heightDifference > 0) {
+                        score += heightDifference;
+                        System.out.println("Height difference: " + heightDifference + 
+                                         " (Last: " + scrollAdjustedLastY + 
+                                         ", Current: " + currentBlockY + ")");
+                    }
+                }
+                lastBlockY = currentBlockY;
+                totalScrollSinceLastLanding = 0;
             }
+            wasOnBlock = true;
+        } else {
+            wasOnBlock = false;
         }
     }
+
+    // Helper method to get the Y position of the block we're standing on
+    private int getCurrentBlockY() {
+        for (Block block : field.getBlocks()) {
+            boolean xOverlap = (axel.getX() + AXEL_WIDTH/2 > block.getX()) && 
+                             (axel.getX() - AXEL_WIDTH/2 < block.getX() + block.getWidth());
+            boolean yMatch = Math.abs(axel.getY() - block.getY()) <= 1;
+            
+            if (xOverlap && yMatch) {
+                return block.getY();
+            }
+        }
+        return -1;
+    }
+
+    private int getLevel() {
+        return 1 + (score / 1000); 
+    }
+
 
     @Override
     public void paintComponent(Graphics g) {
@@ -50,6 +88,7 @@ public class GamePanel extends JPanel implements KeyListener {
         g.setColor(Color.BLACK);
         g.setFont(new Font("Arial", Font.BOLD, 16));
         g.drawString("Score: " + score , 10, 20);
+        g.drawString("Level: " + getLevel(), 10, 40); // Ajout de l'affichage du niveau
 
     }
 

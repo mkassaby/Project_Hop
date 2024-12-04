@@ -28,11 +28,11 @@ public class Hop {
 
 
     public void round() {
-        axel.update();
-        field.update(difficulty);
-        difficulty = 1.0 + (gamePanel.getScore() / 500);
+        field.update(difficulty); 
+        axel.update();           
+        gamePanel.addScore();     
+        difficulty = 1.0 + (gamePanel.getScore() / 1000.0);
         frame.repaint();
-        gamePanel.addScore();
     }
 
     public boolean over() {
