@@ -31,7 +31,7 @@ public class Field {
     }
 
     public void update(double difficulty) {
-        scrollSpeed = difficulty * 2;
+        scrollSpeed = difficulty * 1.5;
         totalScroll += scrollSpeed;
         
         for (Block block : blocks) {
