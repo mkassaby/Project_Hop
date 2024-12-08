@@ -1,4 +1,7 @@
 import java.awt.event.ActionEvent;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import javax.swing.*;
 
 public class Hop {
@@ -18,14 +21,41 @@ public class Hop {
         this.field = new Field(WIDTH, HEIGHT);
         this.axel = new Axel(field, field.getFirstBlock().getX()+(field.getFirstBlock().getWidth()/2), field.getFirstBlock().getY());
         this.gamePanel = new GamePanel(field, axel);
-
         this.frame = new JFrame("Hop!");
+    }
+
+    public void startGame(String playerName, int difficulty) {
         frame.add(gamePanel);
         frame.pack();
         frame.setVisible(true);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        
+        this.difficulty = difficulty;
+        
+        timer = new Timer(DELAY, (ActionEvent e) -> {
+            round();
+            if (over()) {
+                timer.stop();
+                frame.dispose();
+                saveScore(playerName, (int)gamePanel.getScore());
+            }
+        });
+        timer.start();
     }
 
+    private void saveScore(String playerName, int score) {
+        try {
+            Class.forName("org.sqlite.JDBC");
+            Connection con = DriverManager.getConnection("jdbc:sqlite:results.db");
+            PreparedStatement ps = con.prepareStatement("INSERT INTO scores (name, score) VALUES (?, ?)");
+            ps.setString(1, playerName);
+            ps.setInt(2, score);
+            ps.executeUpdate();
+            con.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     public void round() {
         field.update(difficulty); 
@@ -39,18 +69,9 @@ public class Hop {
         return !axel.isSurviving();
     }
 
-
-
     public static void main(String[] args) {
         Hop game = new Hop();
 
-        game.timer = new Timer(DELAY, (ActionEvent e) -> {
-            game.round();
-            if (game.over()) {
-                game.timer.stop();
-                game.frame.remove(game.gamePanel);
-            }
-        });
-        game.timer.start();
+        game.startGame("Player1", 1);
     }
 }

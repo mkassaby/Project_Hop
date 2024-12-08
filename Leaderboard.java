@@ -1,51 +1,40 @@
 import java.awt.*;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 
 public class Leaderboard extends JPanel {
-    private final int tailleCase =36;
+    private final int tailleCase = 36;
     private JTable table;
 
     public Leaderboard(JFrame frame) {
         try {
-            String tableQuery = "SELECT * FROM scores ORDER BY score";
-
             Class.forName("org.sqlite.JDBC");
             Connection con = DriverManager.getConnection("jdbc:sqlite:results.db");
-            PreparedStatement ps = con.prepareStatement(tableQuery);
+            PreparedStatement ps = con.prepareStatement("SELECT name, score FROM scores ORDER BY score DESC LIMIT 10");
             ResultSet rs = ps.executeQuery();
 
-            // Create a DefaultTableModel
             DefaultTableModel model = new DefaultTableModel();
-
-            // Add columns to the model
             model.addColumn("Username");
             model.addColumn("Score");
 
-            // Add rows to the model from the ResultSet
             while (rs.next()) {
-                Object[] row = new Object[6];
-                row[0] = rs.getString("name");
-                row[1] = rs.getInt("score");
-                model.addRow(row);
+                model.addRow(new Object[]{rs.getString("name"), rs.getInt("score")});
             }
 
-            // Create the JTable with the model
             table = new JTable(model);
+            setLayout(new BorderLayout());
+            setPreferredSize(new Dimension(324, tailleCase * 4));
 
-            // Add the JTable to a JScrollPane
-            frame.setLayout(new BorderLayout());
-            JScrollPane scrollPane = new JScrollPane(table);
-            scrollPane.setBounds(28, 100, 268, tailleCase * 3);
-            frame.add(scrollPane);
+            add(new JScrollPane(table), BorderLayout.CENTER);
+
+            rs.close();
+            ps.close();
+            con.close();
 
         } catch (ClassNotFoundException | SQLException e) {
             e.printStackTrace();
+            add(new JLabel("Could not load leaderboard"));
         }
     }
 }
