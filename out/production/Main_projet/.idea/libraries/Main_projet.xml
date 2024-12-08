@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="Main_projet">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/slf4j-api-1.7.36.jar!/" />
+      <root url="jar://$PROJECT_DIR$/sqlite-jdbc-3.44.1.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

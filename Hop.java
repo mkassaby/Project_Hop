@@ -29,7 +29,7 @@ public class Hop {
 
     public void round() {
         field.update(difficulty); 
-        axel.update();           
+        axel.update(gamePanel.getLevel());           
         gamePanel.addScore();     
         difficulty = 1.0 + (gamePanel.getScore() / 1000.0);
         frame.repaint();

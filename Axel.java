@@ -34,7 +34,7 @@ public class Axel {
         this.surviving = true;
     }
 
-    public void computeMove() {
+    public void computeMove(int difficulty) {
         if (left && x > 0) x -= LATERAL_SPEED;
         if (right && x < field.width - AXEL_WIDTH) x += LATERAL_SPEED;
         
@@ -57,7 +57,7 @@ public class Axel {
 
 
         if (falling) {
-            ySpeed -= GRAVITY;
+            ySpeed -= GRAVITY * 1.35;
             if (diving) {
                 ySpeed -= DIVE_SPEED;
                 diving = false;
@@ -78,8 +78,8 @@ public class Axel {
         }
     }
 
-    public void update() {
-        computeMove();
+    public void update(int difficulty) {
+        computeMove(difficulty);
     }
         
 

@@ -1,6 +1,9 @@
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.File;
+import java.io.IOException;
+import javax.imageio.ImageIO;
 import javax.swing.*;
 
 public class GamePanel extends JPanel implements KeyListener {
@@ -16,6 +19,8 @@ public class GamePanel extends JPanel implements KeyListener {
     private boolean wasOnBlock = false;
     private double totalScrollSinceLastLanding = 0;
 
+    private Image yodaImg, doodleImg;
+
     public GamePanel(Field field, Axel axel) {
         this.field = field;
         this.axel = axel;
@@ -23,10 +28,17 @@ public class GamePanel extends JPanel implements KeyListener {
         setPreferredSize(new Dimension(field.width, field.height));
         setFocusable(true);
         addKeyListener(this);
+
+        try {
+            yodaImg = ImageIO.read(new File("media/babyyoda.png"));
+            doodleImg = ImageIO.read(new File("media/doodle.png"));
+    
+        } catch (IOException e) {
+                e.printStackTrace();
+        }
     }
 
     public void addScore() {
-        // Track the scroll
         totalScrollSinceLastLanding += field.getScrollSpeed();
         
         if (axel.checkStandingOnBlock()) {
@@ -38,10 +50,7 @@ public class GamePanel extends JPanel implements KeyListener {
                     int heightDifference = scrollAdjustedLastY - currentBlockY;
                     
                     if (heightDifference > 0) {
-                        score += heightDifference;
-                        System.out.println("Height difference: " + heightDifference + 
-                                         " (Last: " + scrollAdjustedLastY + 
-                                         ", Current: " + currentBlockY + ")");
+                        score += (heightDifference / 80) * 80;
                     }
                 }
                 lastBlockY = currentBlockY;
@@ -53,7 +62,6 @@ public class GamePanel extends JPanel implements KeyListener {
         }
     }
 
-    // Helper method to get the Y position of the block we're standing on
     private int getCurrentBlockY() {
         for (Block block : field.getBlocks()) {
             boolean xOverlap = (axel.getX() + AXEL_WIDTH/2 > block.getX()) && 
@@ -67,7 +75,7 @@ public class GamePanel extends JPanel implements KeyListener {
         return -1;
     }
 
-    private int getLevel() {
+    public int getLevel() {
         return 1 + (score / 1000); 
     }
 
@@ -83,12 +91,14 @@ public class GamePanel extends JPanel implements KeyListener {
             g.fillRect(block.getX(),block.getY(), block.getWidth(), BLOCK_HEIGHT);
         } //pour dessiner les blocks  
         g.setColor(Color.RED);
-        g.fillOval(axel.getX() - AXEL_WIDTH/2,  axel.getY() - AXEL_HEIGHT, AXEL_WIDTH, AXEL_HEIGHT);//desiner l'axel
+        g.drawImage(doodleImg, axel.getX() - AXEL_WIDTH/2,  axel.getY() - ((AXEL_HEIGHT * 3 )- 5), AXEL_WIDTH * 3, AXEL_HEIGHT * 3, this);
 
         g.setColor(Color.BLACK);
         g.setFont(new Font("Arial", Font.BOLD, 16));
         g.drawString("Score: " + score , 10, 20);
         g.drawString("Level: " + getLevel(), 10, 40); // Ajout de l'affichage du niveau
+
+
 
     }
 
@@ -115,4 +125,6 @@ public class GamePanel extends JPanel implements KeyListener {
     public double getScore(){
         return this.score;
     }
+
+
 }
