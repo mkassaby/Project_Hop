@@ -1,6 +1,6 @@
 public class Axel {
     public static final double MAX_FALL_SPEED = -20;
-    public static final double JUMP_SPEED = 20;
+    public static final double JUMP_SPEED = 18;
     public static final double GRAVITY = 1;
     public static final double DIVE_SPEED = 3 * GRAVITY;
     public static final double LATERAL_SPEED = 8;
@@ -49,7 +49,7 @@ public class Axel {
         }
 
         if (jumping && canJump) {
-            ySpeed = JUMP_SPEED;
+            ySpeed = JUMP_SPEED + difficulty;
             falling = true;
             jumping = false;
             canJump = false;
@@ -57,7 +57,7 @@ public class Axel {
 
 
         if (falling) {
-            ySpeed -= GRAVITY * 1.35;
+            ySpeed -= GRAVITY * 1.5;
             if (diving) {
                 ySpeed -= DIVE_SPEED;
                 diving = false;

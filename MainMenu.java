@@ -3,11 +3,13 @@ import javax.swing.*;
 
 public class MainMenu extends JPanel {
     private final JFrame frame;
+    private final Hop hop;
     private final int PANEL_WIDTH = 400;
     private final int PANEL_HEIGHT = 600;
 
-    public MainMenu(JFrame frame) {
+    public MainMenu(JFrame frame, Hop hop) {
         this.frame = frame;
+        this.hop = hop;
         setupUI();
     }
 
@@ -20,7 +22,7 @@ public class MainMenu extends JPanel {
         titleLabel.setFont(new Font("Arial", Font.BOLD, 48));
         titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        // Buttons
+        // Single Play Button
         JButton playButton = new JButton("Play Game");
         playButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         playButton.addActionListener(e -> startGame());
@@ -35,19 +37,14 @@ public class MainMenu extends JPanel {
     }
 
     private void startGame() {
+        frame.setVisible(false);
         frame.getContentPane().removeAll();
-        frame.add(new Start(frame, new Hop()));
+        hop.reset(); // Reset the game before starting
+        frame.add(new Start(frame, hop));
         frame.pack();
         frame.revalidate();
         frame.repaint();
-    }
-
-    public static void main(String[] args) {
-        JFrame frame = new JFrame("Hop Game");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.add(new MainMenu(frame));
-        frame.pack();
-        frame.setLocationRelativeTo(null);
         frame.setVisible(true);
+        frame.setLocationRelativeTo(null);
     }
 }

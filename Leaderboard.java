@@ -11,7 +11,7 @@ public class Leaderboard extends JPanel {
         try {
             Class.forName("org.sqlite.JDBC");
             Connection con = DriverManager.getConnection("jdbc:sqlite:results.db");
-            PreparedStatement ps = con.prepareStatement("SELECT name, score FROM scores ORDER BY score DESC LIMIT 10");
+            PreparedStatement ps = con.prepareStatement("SELECT name, score FROM scores ORDER BY score DESC LIMIT 5");
             ResultSet rs = ps.executeQuery();
 
             DefaultTableModel model = new DefaultTableModel();
