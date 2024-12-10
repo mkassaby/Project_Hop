@@ -4,6 +4,7 @@ import java.awt.event.KeyListener;
 import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
+import javax.sound.sampled.*;
 import javax.swing.*;
 
 public class GamePanel extends JPanel implements KeyListener {
@@ -20,7 +21,8 @@ public class GamePanel extends JPanel implements KeyListener {
     private boolean wasOnBlock = false;
     private double totalScrollSinceLastLanding = 0;
 
-    private Image yodaImg, doodleImg, StarsImg, JapanImg;
+    private Image yodaImg, doodleImg, StarsImg, JapanImg, jblocksImg;
+    private Clip backgroundMusic;
 
     public GamePanel(Field field, Axel axel, Theme theme) {
         this.field = field;
@@ -36,9 +38,29 @@ public class GamePanel extends JPanel implements KeyListener {
             doodleImg = ImageIO.read(new File("media/doodle.png"));
             JapanImg = ImageIO.read(new File("media/japan.png"));
             StarsImg = ImageIO.read(new File("media/Stars.png"));
+            jblocksImg = ImageIO.read(new File("media/jblocks.png"));
 
-        } catch (IOException e) {
+            // Only load the music, don't play it yet
+            String musicFile;
+            if (theme == Theme.STAR_WARS) {
+                musicFile = "media/rebel-theme.wav";
+            } else {
+                musicFile = "media/jsong.wav";
+            }
+            AudioInputStream audioStream = AudioSystem.getAudioInputStream(new File(musicFile));
+            backgroundMusic = AudioSystem.getClip();
+            backgroundMusic.open(audioStream);
+
+        } catch (IOException | UnsupportedAudioFileException | LineUnavailableException e) {
             e.printStackTrace();
+        }
+    }
+
+    public void startMusic() {
+        if (backgroundMusic != null) {
+            backgroundMusic.setFramePosition(0);
+            backgroundMusic.loop(Clip.LOOP_CONTINUOUSLY);
+            backgroundMusic.start();
         }
     }
 
@@ -48,12 +70,15 @@ public class GamePanel extends JPanel implements KeyListener {
         if (axel.checkStandingOnBlock()) {
             int currentBlockY = getCurrentBlockY();
             
-            if (!wasOnBlock) {  
+            if (!wasOnBlock) {  // Just landed on a block
                 if (lastBlockY != -1) {
+                    // Calculate actual height difference considering scroll
                     int scrollAdjustedLastY = lastBlockY + (int)totalScrollSinceLastLanding;
-                    int heightDifference = scrollAdjustedLastY - currentBlockY;
+                    int heightDifference = Math.max(0, scrollAdjustedLastY - currentBlockY);
                     
+                    // Award points for any upward movement
                     if (heightDifference > 0) {
+                        // More granular scoring - award points for smaller jumps too
                         score += (heightDifference / 80) * 80;
                     }
                 }
@@ -83,41 +108,30 @@ public class GamePanel extends JPanel implements KeyListener {
         return 1 + (score / 1000); 
     }
 
-
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         
-        
         if (currentTheme == Theme.STAR_WARS) {
             g.drawImage(StarsImg, 0, 0, field.width, field.height, this);
+            g.setColor(Color.YELLOW);
+            for (Block block : field.getBlocks()) {
+                g.fillRect(block.getX(), block.getY(), block.getWidth(), BLOCK_HEIGHT);
+            }
+            g.drawImage(yodaImg, axel.getX() - AXEL_WIDTH/2, axel.getY() - ((AXEL_HEIGHT * 3) - 5), AXEL_WIDTH * 3, AXEL_HEIGHT * 3, this);
+            g.setColor(Color.WHITE);
         } else {
             g.drawImage(JapanImg, 0, 0, field.width, field.height, this);
+            for (Block block : field.getBlocks()) {
+                g.drawImage(jblocksImg, block.getX(), block.getY(), block.getWidth(), BLOCK_HEIGHT, this);
+            }
+            g.drawImage(doodleImg, axel.getX() - AXEL_WIDTH/2, axel.getY() - ((AXEL_HEIGHT * 3) - 5), AXEL_WIDTH * 3, AXEL_HEIGHT * 3, this);
+            g.setColor(Color.BLACK);
         }
 
-        if (currentTheme == Theme.STAR_WARS) {
-            g.setColor(Color.YELLOW);
-        } else {
-            g.setColor(Color.WHITE); 
-        }
-        for (Block block : field.getBlocks()) {
-            g.fillRect(block.getX(),block.getY(), block.getWidth(), BLOCK_HEIGHT);
-        } 
-        g.setColor(Color.RED);
-        Image characterImg;
-        if (currentTheme == Theme.STAR_WARS) {
-            characterImg = yodaImg;
-        } else {
-            characterImg = doodleImg;
-        }
-        g.drawImage(characterImg, axel.getX() - AXEL_WIDTH/2,  axel.getY() - ((AXEL_HEIGHT * 3 )- 5), AXEL_WIDTH * 3, AXEL_HEIGHT * 3, this);
-
-        g.setColor(Color.BLACK);
         g.setFont(new Font("Arial", Font.BOLD, 16));
         g.drawString("Score: " + score , 10, 20);
-        g.drawString("Level: " + getLevel(), 10, 40); // Ajout de l'affichage du niveau
-
-
+        g.drawString("Level: " + getLevel(), 10, 40);
     }
 
     @Override
@@ -144,5 +158,10 @@ public class GamePanel extends JPanel implements KeyListener {
         return this.score;
     }
 
-
+    public void stopMusic() {
+        if (backgroundMusic != null && backgroundMusic.isRunning()) {
+            backgroundMusic.stop();
+            backgroundMusic.close();
+        }
+    }
 }

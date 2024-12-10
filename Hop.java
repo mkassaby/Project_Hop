@@ -15,7 +15,7 @@ public class Hop {
     private Timer timer;
     private GamePanel gamePanel;
     private double difficulty = 1.0;
-    private Theme currentTheme = Theme.JAPAN; // Default theme
+    private Theme currentTheme = Theme.JAPAN; 
 
     public Hop() {
         this.field = new Field(WIDTH, HEIGHT);
@@ -51,10 +51,14 @@ public class Hop {
         
         this.difficulty = difficulty;
         
+        // Start the music when game starts
+        gamePanel.startMusic();
+        
         timer = new Timer(DELAY, (ActionEvent e) -> {
             round();
             if (over()) {
                 timer.stop();
+                gamePanel.stopMusic();  // Stop music when game is over
                 frame.dispose();
                 saveScore(playerName, (int)gamePanel.getScore());
                 showMainMenu();
@@ -64,6 +68,9 @@ public class Hop {
     }
 
     public void reset() {
+        if (gamePanel != null) {
+            gamePanel.stopMusic();
+        }
         // Reset game components
         this.field = new Field(WIDTH, HEIGHT);
         this.axel = new Axel(field, field.getFirstBlock().getX()+(field.getFirstBlock().getWidth()/2), field.getFirstBlock().getY());
@@ -72,6 +79,7 @@ public class Hop {
     }
 
     private void saveScore(String playerName, int score) {
+        gamePanel.stopMusic();  // Ensure music is stopped
         try {
             Class.forName("org.sqlite.JDBC");
             Connection con = DriverManager.getConnection("jdbc:sqlite:results.db");
