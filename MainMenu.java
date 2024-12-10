@@ -22,18 +22,50 @@ public class MainMenu extends JPanel {
         titleLabel.setFont(new Font("Arial", Font.BOLD, 48));
         titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        // Single Play Button
+        // Create panel for buttons
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
+
+        // Play Button
         JButton playButton = new JButton("Play Game");
         playButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         playButton.addActionListener(e -> startGame());
+
+        // Theme Button
+        JButton themeButton = new JButton("Choose Theme");
+        themeButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        themeButton.addActionListener(e -> chooseTheme());
+
+        // Add buttons to panel
+        buttonPanel.add(playButton);
+        buttonPanel.add(Box.createHorizontalStrut(10));
+        buttonPanel.add(themeButton);
 
         // Add components
         add(Box.createVerticalStrut(50));
         add(titleLabel);
         add(Box.createVerticalStrut(50));
-        add(playButton);
+        add(buttonPanel);
         add(Box.createVerticalStrut(30));
         add(new Leaderboard(frame));
+    }
+
+    private void chooseTheme() {
+        Object[] options = {"Star Wars", "Japan"};
+        int choice = JOptionPane.showOptionDialog(frame,
+            "Choose your theme:",
+            "Theme Selection",
+            JOptionPane.YES_NO_OPTION,
+            JOptionPane.QUESTION_MESSAGE,
+            null,
+            options,
+            options[0]);
+        
+        if (choice == 0) {
+            hop.setTheme(Theme.STAR_WARS);
+        } else if (choice == 1) {
+            hop.setTheme(Theme.JAPAN);
+        }
     }
 
     private void startGame() {

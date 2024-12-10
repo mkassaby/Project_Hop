@@ -15,13 +15,21 @@ public class Hop {
     private Timer timer;
     private GamePanel gamePanel;
     private double difficulty = 1.0;
-
+    private Theme currentTheme = Theme.JAPAN; // Default theme
 
     public Hop() {
         this.field = new Field(WIDTH, HEIGHT);
         this.axel = new Axel(field, field.getFirstBlock().getX()+(field.getFirstBlock().getWidth()/2), field.getFirstBlock().getY());
-        this.gamePanel = new GamePanel(field, axel);
+        this.gamePanel = new GamePanel(field, axel, currentTheme);
         this.frame = new JFrame("Hop!");
+    }
+
+    public void setTheme(Theme theme) {
+        this.currentTheme = theme;
+    }
+
+    public Theme getCurrentTheme() {
+        return currentTheme;
     }
 
     public void showMainMenu() {
@@ -59,7 +67,7 @@ public class Hop {
         // Reset game components
         this.field = new Field(WIDTH, HEIGHT);
         this.axel = new Axel(field, field.getFirstBlock().getX()+(field.getFirstBlock().getWidth()/2), field.getFirstBlock().getY());
-        this.gamePanel = new GamePanel(field, axel);
+        this.gamePanel = new GamePanel(field, axel, currentTheme);
         this.difficulty = 1.0;
     }
 

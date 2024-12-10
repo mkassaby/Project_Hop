@@ -13,17 +13,19 @@ public class GamePanel extends JPanel implements KeyListener {
 
     private final Axel axel;
     private final Field field;
+    private final Theme currentTheme;
 
     private int score = 0;
     private int lastBlockY = -1;  // Track the Y position of the last block we stood on
     private boolean wasOnBlock = false;
     private double totalScrollSinceLastLanding = 0;
 
-    private Image yodaImg, doodleImg;
+    private Image yodaImg, doodleImg, StarsImg, JapanImg;
 
-    public GamePanel(Field field, Axel axel) {
+    public GamePanel(Field field, Axel axel, Theme theme) {
         this.field = field;
         this.axel = axel;
+        this.currentTheme = theme;
 
         setPreferredSize(new Dimension(field.width, field.height));
         setFocusable(true);
@@ -32,9 +34,11 @@ public class GamePanel extends JPanel implements KeyListener {
         try {
             yodaImg = ImageIO.read(new File("media/babyyoda.png"));
             doodleImg = ImageIO.read(new File("media/doodle.png"));
-    
+            JapanImg = ImageIO.read(new File("media/japan.png"));
+            StarsImg = ImageIO.read(new File("media/Stars.png"));
+
         } catch (IOException e) {
-                e.printStackTrace();
+            e.printStackTrace();
         }
     }
 
@@ -84,20 +88,34 @@ public class GamePanel extends JPanel implements KeyListener {
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         
-        g.setColor(Color.WHITE);
-        g.fillRect(0, 0, field.width, field.height); //arriere plan
-        g.setColor(Color.BLACK);
+        
+        if (currentTheme == Theme.STAR_WARS) {
+            g.drawImage(StarsImg, 0, 0, field.width, field.height, this);
+        } else {
+            g.drawImage(JapanImg, 0, 0, field.width, field.height, this);
+        }
+
+        if (currentTheme == Theme.STAR_WARS) {
+            g.setColor(Color.YELLOW);
+        } else {
+            g.setColor(Color.WHITE); 
+        }
         for (Block block : field.getBlocks()) {
             g.fillRect(block.getX(),block.getY(), block.getWidth(), BLOCK_HEIGHT);
-        } //pour dessiner les blocks  
+        } 
         g.setColor(Color.RED);
-        g.drawImage(doodleImg, axel.getX() - AXEL_WIDTH/2,  axel.getY() - ((AXEL_HEIGHT * 3 )- 5), AXEL_WIDTH * 3, AXEL_HEIGHT * 3, this);
+        Image characterImg;
+        if (currentTheme == Theme.STAR_WARS) {
+            characterImg = yodaImg;
+        } else {
+            characterImg = doodleImg;
+        }
+        g.drawImage(characterImg, axel.getX() - AXEL_WIDTH/2,  axel.getY() - ((AXEL_HEIGHT * 3 )- 5), AXEL_WIDTH * 3, AXEL_HEIGHT * 3, this);
 
         g.setColor(Color.BLACK);
         g.setFont(new Font("Arial", Font.BOLD, 16));
         g.drawString("Score: " + score , 10, 20);
         g.drawString("Level: " + getLevel(), 10, 40); // Ajout de l'affichage du niveau
-
 
 
     }
