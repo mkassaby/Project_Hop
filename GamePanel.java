@@ -21,7 +21,7 @@ public class GamePanel extends JPanel implements KeyListener {
     private boolean wasOnBlock = false;
     private double totalScrollSinceLastLanding = 0;
 
-    private Image yodaImg, doodleImg, StarsImg, JapanImg, jblocksImg;
+    private Image yodaImg, doodleImg, StarsImg, JapanImg, jblocksImg, appleImg, coinImg, glowblockImg;
     private Clip backgroundMusic;
 
     public GamePanel(Field field, Axel axel, Theme theme) {
@@ -39,6 +39,9 @@ public class GamePanel extends JPanel implements KeyListener {
             JapanImg = ImageIO.read(new File("media/japan.png"));
             StarsImg = ImageIO.read(new File("media/Stars.png"));
             jblocksImg = ImageIO.read(new File("media/jblocks.png"));
+            appleImg = ImageIO.read(new File("media/apple.png"));
+            coinImg = ImageIO.read(new File("media/coin.png"));
+            glowblockImg = ImageIO.read(new File("media/glowblock.png"));
 
             // Only load the music, don't play it yet
             String musicFile;
@@ -116,7 +119,7 @@ public class GamePanel extends JPanel implements KeyListener {
             g.drawImage(StarsImg, 0, 0, field.width, field.height, this);
             g.setColor(Color.YELLOW);
             for (Block block : field.getBlocks()) {
-                g.fillRect(block.getX(), block.getY(), block.getWidth(), BLOCK_HEIGHT);
+                g.drawImage(glowblockImg, block.getX(), block.getY(), block.getWidth(), BLOCK_HEIGHT, this);
             }
             g.drawImage(yodaImg, axel.getX() - AXEL_WIDTH/2, axel.getY() - ((AXEL_HEIGHT * 3) - 5), AXEL_WIDTH * 3, AXEL_HEIGHT * 3, this);
             g.setColor(Color.WHITE);
@@ -127,6 +130,27 @@ public class GamePanel extends JPanel implements KeyListener {
             }
             g.drawImage(doodleImg, axel.getX() - AXEL_WIDTH/2, axel.getY() - ((AXEL_HEIGHT * 3) - 5), AXEL_WIDTH * 3, AXEL_HEIGHT * 3, this);
             g.setColor(Color.RED);
+        }
+
+        // Draw power-up
+        PowerUp powerUp = field.getCurrentPowerUp();
+        if (powerUp != null) {
+            if (!powerUp.isCollected()) {
+                if (currentTheme == Theme.STAR_WARS) {
+                    g.drawImage(coinImg, powerUp.getX(), powerUp.getY(), 
+                              powerUp.getWidth(), powerUp.getHeight(), this);
+                } else {
+                    g.drawImage(appleImg, powerUp.getX(), powerUp.getY(), 
+                              powerUp.getWidth(), powerUp.getHeight(), this);
+                }
+            } else if (axel.hasDoubleJump()) {
+                // Draw power-up timer
+                int timeLeft = (int)((axel.getDoubleJumpEndTime() - System.currentTimeMillis()) / 1000);
+                if (timeLeft > 0) {
+                    g.setFont(new Font("Arial", Font.BOLD, 16));
+                    g.drawString("Power-up: " + timeLeft + "s", field.width - 120, 50);
+                }
+            }
         }
 
         g.setFont(new Font("Arial", Font.BOLD, 16));
@@ -162,6 +186,16 @@ public class GamePanel extends JPanel implements KeyListener {
         if (backgroundMusic != null && backgroundMusic.isRunning()) {
             backgroundMusic.stop();
             backgroundMusic.close();
+        }
+    }
+
+    public void checkPowerUpCollision() {
+        PowerUp powerUp = field.getCurrentPowerUp();
+        if (powerUp != null && !powerUp.isCollected() && 
+            powerUp.intersects(axel.getX() - AXEL_WIDTH/2, axel.getY() - AXEL_HEIGHT/2, 
+                             AXEL_WIDTH, AXEL_HEIGHT)) {
+            powerUp.collect();
+            axel.activateDoubleJump();
         }
     }
 }

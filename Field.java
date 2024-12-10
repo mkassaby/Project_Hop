@@ -13,12 +13,17 @@ public class Field {
     private List<Block> blocks;
     private double scrollSpeed = 1.0;
     private double totalScroll = 0;  // Add this field
+    private PowerUp currentPowerUp;
+    private long lastPowerUpTime;
+    private static final long POWERUP_INTERVAL = 20000; // 45 seconds
+    private static final long POWERUP_DURATION = 10000; // 10 seconds
 
     public Field(int width, int height) {
         this.width = width;
         this.height = height;
         this.blocks = new ArrayList<>();
         generateBlocks();
+        this.lastPowerUpTime = System.currentTimeMillis();
     }
 
     private void generateBlocks() {
@@ -53,7 +58,29 @@ public class Field {
             blocks.add(new Block(blockX, newY, blockWidth));
             topBlockY = newY;
         }
-            
+        
+        // Update power-up logic
+        long currentTime = System.currentTimeMillis();
+        if (currentPowerUp == null && currentTime - lastPowerUpTime >= POWERUP_INTERVAL) {
+            generatePowerUp();
+        } else if (currentPowerUp != null) {
+            if (!currentPowerUp.isCollected() && currentTime - lastPowerUpTime >= POWERUP_DURATION) {
+                currentPowerUp = null;
+            } else if (currentPowerUp.isCollected() && 
+                      currentTime - currentPowerUp.getCollectionTime() >= 10000) {
+                currentPowerUp = null;
+                lastPowerUpTime = currentTime; 
+            }
+        }
+        
+    }
+
+    private void generatePowerUp() {
+        Random rand = new Random();
+        int x = rand.nextInt(width - 20); // 20 is power-up width
+        int y = START_ALTITUDE + rand.nextInt((height/2) - START_ALTITUDE); // Generate in top half of screen
+        currentPowerUp = new PowerUp(x, y);
+        lastPowerUpTime = System.currentTimeMillis();
     }
 
     public List<Block> getBlocks() {
@@ -70,6 +97,10 @@ public class Field {
 
     public double getScrollSpeed() {
         return scrollSpeed;
+    }
+
+    public PowerUp getCurrentPowerUp() {
+        return currentPowerUp;
     }
 
 }

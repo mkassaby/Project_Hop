@@ -16,6 +16,7 @@ public class Hop {
     private GamePanel gamePanel;
     private double difficulty = 1.0;
     private Theme currentTheme = Theme.JAPAN; 
+    private String currentPlayerName; // Add this field
 
     public Hop() {
         this.field = new Field(WIDTH, HEIGHT);
@@ -42,6 +43,7 @@ public class Hop {
     }
 
     public void startGame(String playerName, int difficulty) {
+        this.currentPlayerName = playerName; // Store the player name
         frame.getContentPane().removeAll();
         frame.add(gamePanel);
         frame.pack();
@@ -56,13 +58,7 @@ public class Hop {
         
         timer = new Timer(DELAY, (ActionEvent e) -> {
             round();
-            if (over()) {
-                timer.stop();
-                gamePanel.stopMusic();  // Stop music when game is over
-                frame.dispose();
-                saveScore(playerName, (int)gamePanel.getScore());
-                showMainMenu();
-            }
+            frame.repaint();
         });
         timer.start();
     }
@@ -93,12 +89,28 @@ public class Hop {
         }
     }
 
+    private void showGameOver(String playerName, int score) {
+        frame.getContentPane().removeAll();
+        frame.add(new GameOverScreen(frame, this, playerName, score));
+        frame.revalidate();
+        frame.repaint();
+        frame.setLocationRelativeTo(null);
+        saveScore(playerName, score);
+    }
+
     public void round() {
         field.update(difficulty); 
-        axel.update(gamePanel.getLevel());           
+        axel.update(gamePanel.getLevel());
+        gamePanel.checkPowerUpCollision(); // Add this line
         gamePanel.addScore();     
         difficulty = 1.0 + (gamePanel.getScore() / 1000.0);
         frame.repaint();
+        if (over()) {
+            timer.stop();
+            gamePanel.stopMusic();
+            int finalScore = (int)gamePanel.getScore();
+            showGameOver(currentPlayerName, finalScore);
+        }
     }
 
     public boolean over() {

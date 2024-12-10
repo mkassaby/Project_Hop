@@ -1,9 +1,9 @@
 public class Axel {
     public static final double MAX_FALL_SPEED = -20;
-    public static final double JUMP_SPEED = 20;
+    public static final double JUMP_SPEED = 18;
     public static final double GRAVITY = 1;
     public static final double DIVE_SPEED = 3 * GRAVITY;
-    public static final double LATERAL_SPEED = 8;
+    public static final double LATERAL_SPEED = 10;
 
     public static final int AXEL_WIDTH = 10;
     public static final int AXEL_HEIGHT = 10;
@@ -24,8 +24,10 @@ public class Axel {
     private double ySpeed;
 
     private boolean canJump = true; 
-
-    //private Block currentBlock;
+    private boolean hasDoubleJump = false;
+    private long doubleJumpStartTime;
+    private static final long DOUBLE_JUMP_DURATION = 10000; // 5 seconds
+    private boolean canDoubleJump = false;  // Add this new field
 
     public Axel(Field f, int x, int y) {
         this.field = f;
@@ -45,6 +47,7 @@ public class Axel {
         } else {
             falling = false;
             canJump = true;
+            canDoubleJump = true;  
             ySpeed = 0;
         }
 
@@ -81,6 +84,11 @@ public class Axel {
 
     public void update(int difficulty) {
         computeMove(difficulty);
+        
+        // Check if double jump has expired
+        if (hasDoubleJump && System.currentTimeMillis() - doubleJumpStartTime > DOUBLE_JUMP_DURATION) {
+            hasDoubleJump = false;
+        }
     }
         
 
@@ -133,6 +141,11 @@ public class Axel {
         if (canJump) {
             jumping = true;
             canJump = false;
+            canDoubleJump = hasDoubleJump;  // Enable double jump if power-up is active
+        } else if (hasDoubleJump && canDoubleJump && falling) {
+            // Perform double jump with half the speed
+            ySpeed = JUMP_SPEED / 2;
+            canDoubleJump = false;  // Use up the double jump
         }
     }
 
@@ -143,5 +156,19 @@ public class Axel {
     public void stop() {
         left = false;
         right = false;
+    }
+
+    public void activateDoubleJump() {
+        hasDoubleJump = true;
+        doubleJumpStartTime = System.currentTimeMillis();
+    }
+
+    // Add these methods to access double jump status and end time
+    public boolean hasDoubleJump() {
+        return hasDoubleJump;
+    }
+
+    public long getDoubleJumpEndTime() {
+        return doubleJumpStartTime + DOUBLE_JUMP_DURATION;
     }
 }
