@@ -126,7 +126,7 @@ public class GamePanel extends JPanel implements KeyListener {
                 g.drawImage(jblocksImg, block.getX(), block.getY(), block.getWidth(), BLOCK_HEIGHT, this);
             }
             g.drawImage(doodleImg, axel.getX() - AXEL_WIDTH/2, axel.getY() - ((AXEL_HEIGHT * 3) - 5), AXEL_WIDTH * 3, AXEL_HEIGHT * 3, this);
-            g.setColor(Color.BLACK);
+            g.setColor(Color.RED);
         }
 
         g.setFont(new Font("Arial", Font.BOLD, 16));
