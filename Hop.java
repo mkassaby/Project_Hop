@@ -43,7 +43,7 @@ public class Hop {
     }
 
     public void startGame(String playerName, int difficulty) {
-        this.currentPlayerName = playerName; // Store the player name
+        this.currentPlayerName = playerName; 
         frame.getContentPane().removeAll();
         frame.add(gamePanel);
         frame.pack();
@@ -64,6 +64,7 @@ public class Hop {
     }
 
     public void reset() {
+        // Fix the component check
         if (gamePanel != null) {
             gamePanel.stopMusic();
         }
@@ -91,7 +92,8 @@ public class Hop {
 
     private void showGameOver(String playerName, int score) {
         frame.getContentPane().removeAll();
-        frame.add(new GameOverScreen(frame, this, playerName, score));
+        GameOverScreen gameOverScreen = new GameOverScreen(frame, this, playerName, score);
+        frame.add(gameOverScreen);
         frame.revalidate();
         frame.repaint();
         frame.setLocationRelativeTo(null);

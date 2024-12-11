@@ -23,6 +23,9 @@ public class GamePanel extends JPanel implements KeyListener {
 
     private Image yodaImg, doodleImg, StarsImg, JapanImg, jblocksImg, appleImg, coinImg, glowblockImg;
     private Clip backgroundMusic;
+    private Clip jumpSound;
+    private Clip powerupSound;
+    private boolean canPlayJumpSound = true;
 
     public GamePanel(Field field, Axel axel, Theme theme) {
         this.field = field;
@@ -53,6 +56,27 @@ public class GamePanel extends JPanel implements KeyListener {
             AudioInputStream audioStream = AudioSystem.getAudioInputStream(new File(musicFile));
             backgroundMusic = AudioSystem.getClip();
             backgroundMusic.open(audioStream);
+
+            // Load theme-specific sound effects
+            String jumpSoundFile;
+            String powerupSoundFile;
+            if (theme == Theme.STAR_WARS) {
+                jumpSoundFile = "media/yo_jump.wav";
+                powerupSoundFile = "media/r2.wav";
+            } else {
+                jumpSoundFile = "media/nin_jump.wav";
+                powerupSoundFile = "media/bite.wav";
+            }
+
+            // Load jump sound
+            AudioInputStream jumpAudioStream = AudioSystem.getAudioInputStream(new File(jumpSoundFile));
+            jumpSound = AudioSystem.getClip();
+            jumpSound.open(jumpAudioStream);
+
+            // Load powerup sound
+            AudioInputStream powerupAudioStream = AudioSystem.getAudioInputStream(new File(powerupSoundFile));
+            powerupSound = AudioSystem.getClip();
+            powerupSound.open(powerupAudioStream);
 
         } catch (IOException | UnsupportedAudioFileException | LineUnavailableException e) {
             e.printStackTrace();
@@ -163,8 +187,36 @@ public class GamePanel extends JPanel implements KeyListener {
         switch (e.getKeyCode()) {
             case KeyEvent.VK_LEFT -> axel.moveLeft();
             case KeyEvent.VK_RIGHT -> axel.moveRight();
-            case KeyEvent.VK_UP -> axel.jump();
+            case KeyEvent.VK_UP -> {
+                // Just try to jump, sound will be played when jump is successful
+                axel.jump(this);
+            }
             case KeyEvent.VK_DOWN -> axel.dive();
+        }
+        
+        // Reset jump sound when player lands
+        if (!wasOnBlock && axel.checkStandingOnBlock()) {
+            canPlayJumpSound = true;
+        }
+        wasOnBlock = axel.checkStandingOnBlock();
+    }
+
+    // Add this method to be called by Axel when jump happens
+    public void onJump() {
+        playJumpSound();
+    }
+
+    private void playJumpSound() {
+        if (jumpSound != null) {
+            jumpSound.setFramePosition(0);
+            jumpSound.start();
+        }
+    }
+
+    private void playPowerupSound() {
+        if (powerupSound != null) {
+            powerupSound.setFramePosition(0);
+            powerupSound.start();
         }
     }
 
@@ -187,6 +239,12 @@ public class GamePanel extends JPanel implements KeyListener {
             backgroundMusic.stop();
             backgroundMusic.close();
         }
+        if (jumpSound != null) {
+            jumpSound.close();
+        }
+        if (powerupSound != null) {
+            powerupSound.close();
+        }
     }
 
     public void checkPowerUpCollision() {
@@ -196,6 +254,12 @@ public class GamePanel extends JPanel implements KeyListener {
                              AXEL_WIDTH, AXEL_HEIGHT)) {
             powerUp.collect();
             axel.activateDoubleJump();
+            playPowerupSound();
         }
+    }
+
+    // Add this method to reset jump sound flag
+    public void resetJumpSound() {
+        canPlayJumpSound = true;
     }
 }

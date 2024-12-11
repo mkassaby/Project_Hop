@@ -121,6 +121,9 @@ public class Axel {
         return false;
     }
 
+    public boolean canJump() {
+        return canJump || (hasDoubleJump && canDoubleJump && falling);
+    }
 
     public int getX() { return x; }
     public int getY() { return y; }
@@ -137,15 +140,16 @@ public class Axel {
         right = true;
     }
 
-    public void jump() {
+    public void jump(GamePanel panel) {
         if (canJump) {
             jumping = true;
             canJump = false;
-            canDoubleJump = hasDoubleJump;  // Enable double jump if power-up is active
+            canDoubleJump = hasDoubleJump;
+            panel.onJump();  // Notify when regular jump happens
         } else if (hasDoubleJump && canDoubleJump && falling) {
-            // Perform double jump with half the speed
             ySpeed = JUMP_SPEED / 2;
-            canDoubleJump = false;  // Use up the double jump
+            canDoubleJump = false;
+            panel.onJump();  // Notify when double jump happens
         }
     }
 
