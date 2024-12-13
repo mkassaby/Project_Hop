@@ -5,9 +5,17 @@ public class PowerUp {
     private boolean collected = false;
     private long collectionTime;
 
-    public PowerUp(int x, int y) {
+    public enum Type {
+        DOUBLE_JUMP,
+        SPEED_BOOST
+    }
+    
+    private final Type type;
+
+    public PowerUp(int x, int y, Type type) {
         this.x = x;
         this.y = y;
+        this.type = type;
     }
 
     public boolean intersects(int playerX, int playerY, int playerWidth, int playerHeight) {
@@ -29,6 +37,10 @@ public class PowerUp {
 
     public long getCollectionTime() {
         return collectionTime;
+    }
+
+    public Type getType() {
+        return type;
     }
 
     public int getX() { return x; }

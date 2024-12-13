@@ -79,7 +79,16 @@ public class Field {
         Random rand = new Random();
         int x = rand.nextInt(width - 20); // 20 is power-up width
         int y = START_ALTITUDE + rand.nextInt((height/2) - START_ALTITUDE); // Generate in top half of screen
-        currentPowerUp = new PowerUp(x, y);
+        
+        
+        PowerUp.Type type;
+        if (rand.nextBoolean()) {
+            type = PowerUp.Type.DOUBLE_JUMP;
+        } else {
+            type = PowerUp.Type.SPEED_BOOST;
+        }
+        
+        currentPowerUp = new PowerUp(x, y, type);
         lastPowerUpTime = System.currentTimeMillis();
     }
 

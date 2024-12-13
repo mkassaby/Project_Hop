@@ -22,10 +22,12 @@ public class Start extends JPanel {
 
         // Add button actions
         addButton.addActionListener(e -> {
+            MainMenu.playClickSound(); // Add click sound
             inputText = textField.getText();
             if (!inputText.isEmpty()) {
                 setDone(true);
                 frame.setVisible(false);
+                MainMenu.stopBackgroundMusic(); // Stop music before starting game
                 hop.startGame(inputText, score);
             } else {
                 JOptionPane.showMessageDialog(frame, "Please enter a username!");
@@ -36,6 +38,8 @@ public class Start extends JPanel {
         add(nameLabel);
         add(textField);
         add(addButton);
+        
+        MainMenu.startBackgroundMusic(); // Start background music when Start screen opens
     }
 
     public String getName() {

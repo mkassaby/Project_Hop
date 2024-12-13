@@ -25,7 +25,7 @@ public class Leaderboard extends JPanel {
             table = new JTable(model);
             setLayout(new BorderLayout());
             setPreferredSize(new Dimension(324, tailleCase * 4));
-
+            
             add(new JScrollPane(table), BorderLayout.CENTER);
 
             rs.close();

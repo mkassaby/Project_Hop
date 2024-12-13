@@ -29,6 +29,12 @@ public class Axel {
     private static final long DOUBLE_JUMP_DURATION = 10000; // 5 seconds
     private boolean canDoubleJump = false;  // Add this new field
 
+    private static final double NORMAL_LATERAL_SPEED = 10;
+    private static final long SPEED_BOOST_DURATION = 10000; // 10 seconds
+    
+    private boolean hasSpeedBoost = false;
+    private long speedBoostStartTime;
+
     public Axel(Field f, int x, int y) {
         this.field = f;
         this.x = x;
@@ -37,8 +43,10 @@ public class Axel {
     }
 
     public void computeMove(int difficulty) {
-        if (left && x > 0) x -= LATERAL_SPEED;
-        if (right && x < field.width - AXEL_WIDTH) x += LATERAL_SPEED;
+        double currentLateralSpeed = hasSpeedBoost ? NORMAL_LATERAL_SPEED * 2 : NORMAL_LATERAL_SPEED;
+        
+        if (left && x > 0) x -= currentLateralSpeed;
+        if (right && x < field.width - AXEL_WIDTH) x += currentLateralSpeed;
         
 
         //boolean onBlock = checkStandingOnBlock();
@@ -84,13 +92,19 @@ public class Axel {
 
     public void update(int difficulty) {
         computeMove(difficulty);
-        
+        updatePowerUps();
+    }
+
+    private void updatePowerUps() {
         // Check if double jump has expired
         if (hasDoubleJump && System.currentTimeMillis() - doubleJumpStartTime > DOUBLE_JUMP_DURATION) {
             hasDoubleJump = false;
         }
+        // Check if speed boost has expired
+        if (hasSpeedBoost && System.currentTimeMillis() - speedBoostStartTime > SPEED_BOOST_DURATION) {
+            hasSpeedBoost = false;
+        }
     }
-        
 
     public boolean checkStandingOnBlock() {
         for (Block block : field.getBlocks()) {
@@ -145,11 +159,11 @@ public class Axel {
             jumping = true;
             canJump = false;
             canDoubleJump = hasDoubleJump;
-            panel.onJump();  // Notify when regular jump happens
+            panel.playJumpSound();  // Notify when regular jump happens
         } else if (hasDoubleJump && canDoubleJump && falling) {
             ySpeed = JUMP_SPEED / 2;
             canDoubleJump = false;
-            panel.onJump();  // Notify when double jump happens
+            panel.playJumpSound(); // Notify when double jump happens
         }
     }
 
@@ -165,6 +179,19 @@ public class Axel {
     public void activateDoubleJump() {
         hasDoubleJump = true;
         doubleJumpStartTime = System.currentTimeMillis();
+    }
+
+    public void activateSpeedBoost() {
+        hasSpeedBoost = true;
+        speedBoostStartTime = System.currentTimeMillis();
+    }
+
+    public boolean hasSpeedBoost() {
+        return hasSpeedBoost;
+    }
+
+    public long getSpeedBoostEndTime() {
+        return speedBoostStartTime + SPEED_BOOST_DURATION;
     }
 
     // Add these methods to access double jump status and end time

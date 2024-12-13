@@ -22,9 +22,11 @@ public class GamePanel extends JPanel implements KeyListener {
     private double totalScrollSinceLastLanding = 0;
 
     private Image yodaImg, doodleImg, StarsImg, JapanImg, jblocksImg, appleImg, coinImg, glowblockImg;
+    private Image falconImg, drinkImg; // Replace lightningImg with these two theme-specific images
     private Clip backgroundMusic;
     private Clip jumpSound;
     private Clip powerupSound;
+    private Clip speedSound;
     private boolean canPlayJumpSound = true;
 
     public GamePanel(Field field, Axel axel, Theme theme) {
@@ -45,6 +47,8 @@ public class GamePanel extends JPanel implements KeyListener {
             appleImg = ImageIO.read(new File("media/apple.png"));
             coinImg = ImageIO.read(new File("media/coin.png"));
             glowblockImg = ImageIO.read(new File("media/glowblock.png"));
+            falconImg = ImageIO.read(new File("media/falcon.png"));
+            drinkImg = ImageIO.read(new File("media/drink.png"));
 
             // Only load the music, don't play it yet
             String musicFile;
@@ -60,12 +64,15 @@ public class GamePanel extends JPanel implements KeyListener {
             // Load theme-specific sound effects
             String jumpSoundFile;
             String powerupSoundFile;
+            String speedBoostFile;
             if (theme == Theme.STAR_WARS) {
                 jumpSoundFile = "media/yo_jump.wav";
                 powerupSoundFile = "media/r2.wav";
+                speedBoostFile = "media/chew.wav";
             } else {
                 jumpSoundFile = "media/nin_jump.wav";
                 powerupSoundFile = "media/bite.wav";
+                speedBoostFile = "media/ahh.wav";
             }
 
             // Load jump sound
@@ -73,10 +80,13 @@ public class GamePanel extends JPanel implements KeyListener {
             jumpSound = AudioSystem.getClip();
             jumpSound.open(jumpAudioStream);
 
-            // Load powerup sound
             AudioInputStream powerupAudioStream = AudioSystem.getAudioInputStream(new File(powerupSoundFile));
             powerupSound = AudioSystem.getClip();
             powerupSound.open(powerupAudioStream);
+
+            AudioInputStream speedAudioStream = AudioSystem.getAudioInputStream(new File(speedBoostFile));
+            speedSound = AudioSystem.getClip();
+            speedSound.open(speedAudioStream);
 
         } catch (IOException | UnsupportedAudioFileException | LineUnavailableException e) {
             e.printStackTrace();
@@ -160,19 +170,39 @@ public class GamePanel extends JPanel implements KeyListener {
         PowerUp powerUp = field.getCurrentPowerUp();
         if (powerUp != null) {
             if (!powerUp.isCollected()) {
-                if (currentTheme == Theme.STAR_WARS) {
-                    g.drawImage(coinImg, powerUp.getX(), powerUp.getY(), 
-                              powerUp.getWidth(), powerUp.getHeight(), this);
+                Image powerUpImg;
+                if (powerUp.getType() == PowerUp.Type.SPEED_BOOST) {
+                    if(currentTheme == Theme.STAR_WARS){
+                        powerUpImg = falconImg;
+                    }else{
+                        powerUpImg = drinkImg;
+                    }
                 } else {
-                    g.drawImage(appleImg, powerUp.getX(), powerUp.getY(), 
-                              powerUp.getWidth(), powerUp.getHeight(), this);
+                    if(currentTheme == Theme.STAR_WARS){
+                        powerUpImg = coinImg;
+                    }else{
+                        powerUpImg = appleImg;
+                    }
                 }
-            } else if (axel.hasDoubleJump()) {
-                // Draw power-up timer
-                int timeLeft = (int)((axel.getDoubleJumpEndTime() - System.currentTimeMillis()) / 1000);
-                if (timeLeft > 0) {
-                    g.setFont(new Font("Arial", Font.BOLD, 16));
-                    g.drawString("Power-up: " + timeLeft + "s", field.width - 120, 50);
+                g.drawImage(powerUpImg, powerUp.getX(), powerUp.getY(), 
+                          powerUp.getWidth(), powerUp.getHeight(), this);
+            } else {
+                // Draw power-up timers
+                int y = 50;
+                if (axel.hasDoubleJump()) {
+                    int timeLeft = (int)((axel.getDoubleJumpEndTime() - System.currentTimeMillis()) / 1000);
+                    if (timeLeft > 0) {
+                        g.setFont(new Font("Arial", Font.BOLD, 16));
+                        g.drawString("Double Jump: " + timeLeft + "s", field.width - 120, y);
+                        y += 20;
+                    }
+                }
+                if (axel.hasSpeedBoost()) {
+                    int timeLeft = (int)((axel.getSpeedBoostEndTime() - System.currentTimeMillis()) / 1000);
+                    if (timeLeft > 0) {
+                        g.setFont(new Font("Arial", Font.BOLD, 16));
+                        g.drawString("Speed Boost: " + timeLeft + "s", field.width - 120, y);
+                    }
                 }
             }
         }
@@ -201,19 +231,23 @@ public class GamePanel extends JPanel implements KeyListener {
         wasOnBlock = axel.checkStandingOnBlock();
     }
 
-    // Add this method to be called by Axel when jump happens
-    public void onJump() {
-        playJumpSound();
-    }
 
-    private void playJumpSound() {
+
+    public void playJumpSound() {
         if (jumpSound != null) {
             jumpSound.setFramePosition(0);
             jumpSound.start();
         }
     }
 
-    private void playPowerupSound() {
+    private void playSpeedBoostSound(){
+        if(speedSound != null){
+            speedSound.setFramePosition(0);
+            speedSound.start();
+        }
+    }
+
+    private void playDoubleJumpPowerSound() {
         if (powerupSound != null) {
             powerupSound.setFramePosition(0);
             powerupSound.start();
@@ -245,6 +279,8 @@ public class GamePanel extends JPanel implements KeyListener {
         if (powerupSound != null) {
             powerupSound.close();
         }
+
+        
     }
 
     public void checkPowerUpCollision() {
@@ -253,8 +289,13 @@ public class GamePanel extends JPanel implements KeyListener {
             powerUp.intersects(axel.getX() - AXEL_WIDTH/2, axel.getY() - AXEL_HEIGHT/2, 
                              AXEL_WIDTH, AXEL_HEIGHT)) {
             powerUp.collect();
-            axel.activateDoubleJump();
-            playPowerupSound();
+            if (powerUp.getType() == PowerUp.Type.DOUBLE_JUMP) {
+                axel.activateDoubleJump();
+                playDoubleJumpPowerSound();
+            } else {
+                axel.activateSpeedBoost();
+                playSpeedBoostSound();
+            }
         }
     }
 
