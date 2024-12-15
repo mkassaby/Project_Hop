@@ -9,14 +9,17 @@ public class Field {
     private static final int MAX_BLOCK_WIDTH = 100; 
 
     public final int width, height;
-    private int bottom, top;
-    private List<Block> blocks;
+
+    private final List<Block> blocks;
+
+
     private double scrollSpeed = 1.0;
-    private double totalScroll = 0;  // Add this field
+
     private PowerUp currentPowerUp;
     private long lastPowerUpTime;
-    private static final long POWERUP_INTERVAL = 20000; // 45 seconds
-    private static final long POWERUP_DURATION = 10000; // 10 seconds
+
+    private static final long POWERUP_INTERVAL = 20000; 
+    private static final long POWERUP_DURATION = 10000; 
 
     public Field(int width, int height) {
         this.width = width;
@@ -27,6 +30,7 @@ public class Field {
     }
 
     private void generateBlocks() {
+        /*mehtode qui genere des blocks avec un random width qui respectent les tailles minimales et maximale */
         Random rand = new Random();
         for (int altitude = START_ALTITUDE; altitude < height; altitude += ALTITUDE_GAP) {
             int blockWidth = MIN_BLOCK_WIDTH + rand.nextInt(MAX_BLOCK_WIDTH - MIN_BLOCK_WIDTH + 1);
@@ -36,8 +40,8 @@ public class Field {
     }
 
     public void update(double difficulty) {
-        scrollSpeed = difficulty * 1.5;
-        totalScroll += scrollSpeed;
+        /* method qui gere tout ce qui est en rapport avec le mouvements des blocks et le field */ 
+        scrollSpeed = difficulty * 1.5; //devient plus dur avec le temps 
         
         for (Block block : blocks) {
             blocks.set(blocks.indexOf(block), 
@@ -57,9 +61,9 @@ public class Field {
             int blockX = rand.nextInt(width - blockWidth);
             blocks.add(new Block(blockX, newY, blockWidth));
             topBlockY = newY;
-        }
+        } //comme generate blocks mais dynamique
         
-        // Update power-up logic
+        // update du logique des pouvoirs
         long currentTime = System.currentTimeMillis();
         if (currentPowerUp == null && currentTime - lastPowerUpTime >= POWERUP_INTERVAL) {
             generatePowerUp();
@@ -76,9 +80,10 @@ public class Field {
     }
 
     private void generatePowerUp() {
+        /*methode qui genere les pouvoirs */
         Random rand = new Random();
-        int x = rand.nextInt(width - 20); // 20 is power-up width
-        int y = START_ALTITUDE + rand.nextInt((height/2) - START_ALTITUDE); // Generate in top half of screen
+        int x = rand.nextInt(width - 20); 
+        int y = START_ALTITUDE + rand.nextInt((height/2) - START_ALTITUDE); 
         
         
         PowerUp.Type type;
@@ -100,9 +105,6 @@ public class Field {
         return blocks.get(6);
     }
 
-    public double getTotalScroll() {
-        return totalScroll;
-    }
 
     public double getScrollSpeed() {
         return scrollSpeed;

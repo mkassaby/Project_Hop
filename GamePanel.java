@@ -17,17 +17,21 @@ public class GamePanel extends JPanel implements KeyListener {
     private final Theme currentTheme;
 
     private int score = 0;
-    private int lastBlockY = -1;  // Track the Y position of the last block we stood on
+    private int lastBlockY = -1; 
     private boolean wasOnBlock = false;
     private double totalScrollSinceLastLanding = 0;
 
+    //images
     private Image yodaImg, doodleImg, StarsImg, JapanImg, jblocksImg, appleImg, coinImg, glowblockImg;
-    private Image falconImg, drinkImg; // Replace lightningImg with these two theme-specific images
+    private Image falconImg, drinkImg;
+    
+    //sons
     private Clip backgroundMusic;
     private Clip jumpSound;
     private Clip powerupSound;
     private Clip speedSound;
-    private boolean canPlayJumpSound = true;
+
+
 
     public GamePanel(Field field, Axel axel, Theme theme) {
         this.field = field;
@@ -38,6 +42,7 @@ public class GamePanel extends JPanel implements KeyListener {
         setFocusable(true);
         addKeyListener(this);
 
+        //load les images
         try {
             yodaImg = ImageIO.read(new File("media/babyyoda.png"));
             doodleImg = ImageIO.read(new File("media/doodle.png"));
@@ -50,32 +55,26 @@ public class GamePanel extends JPanel implements KeyListener {
             falconImg = ImageIO.read(new File("media/falcon.png"));
             drinkImg = ImageIO.read(new File("media/drink.png"));
 
-            // Only load the music, don't play it yet
+            // load les sons
             String musicFile;
+            String jumpSoundFile;
+            String powerupSoundFile;
+            String speedBoostFile;
             if (theme == Theme.STAR_WARS) {
                 musicFile = "media/rebel-theme.wav";
+                jumpSoundFile = "media/yo_jump.wav";
+                powerupSoundFile = "media/r2.wav";
+                speedBoostFile = "media/chew.wav";
             } else {
                 musicFile = "media/jsong.wav";
+                jumpSoundFile = "media/nin_jump.wav";
+                powerupSoundFile = "media/bite.wav";
+                speedBoostFile = "media/ahh.wav";
             }
             AudioInputStream audioStream = AudioSystem.getAudioInputStream(new File(musicFile));
             backgroundMusic = AudioSystem.getClip();
             backgroundMusic.open(audioStream);
 
-            // Load theme-specific sound effects
-            String jumpSoundFile;
-            String powerupSoundFile;
-            String speedBoostFile;
-            if (theme == Theme.STAR_WARS) {
-                jumpSoundFile = "media/yo_jump.wav";
-                powerupSoundFile = "media/r2.wav";
-                speedBoostFile = "media/chew.wav";
-            } else {
-                jumpSoundFile = "media/nin_jump.wav";
-                powerupSoundFile = "media/bite.wav";
-                speedBoostFile = "media/ahh.wav";
-            }
-
-            // Load jump sound
             AudioInputStream jumpAudioStream = AudioSystem.getAudioInputStream(new File(jumpSoundFile));
             jumpSound = AudioSystem.getClip();
             jumpSound.open(jumpAudioStream);
@@ -107,15 +106,14 @@ public class GamePanel extends JPanel implements KeyListener {
         if (axel.checkStandingOnBlock()) {
             int currentBlockY = getCurrentBlockY();
             
-            if (!wasOnBlock) {  // Just landed on a block
+            if (!wasOnBlock) {  
                 if (lastBlockY != -1) {
-                    // Calculate actual height difference considering scroll
-                    int scrollAdjustedLastY = lastBlockY + (int)totalScrollSinceLastLanding;
-                    int heightDifference = Math.max(0, scrollAdjustedLastY - currentBlockY);
                     
-                    // Award points for any upward movement
+                    int scrollAdjustedLastY = lastBlockY + (int)totalScrollSinceLastLanding;
+                    int heightDifference = scrollAdjustedLastY - currentBlockY;
+                    
+                    
                     if (heightDifference > 0) {
-                        // More granular scoring - award points for smaller jumps too
                         score += (heightDifference / 80) * 80;
                     }
                 }
@@ -166,7 +164,7 @@ public class GamePanel extends JPanel implements KeyListener {
             g.setColor(Color.RED);
         }
 
-        // Draw power-up
+
         PowerUp powerUp = field.getCurrentPowerUp();
         if (powerUp != null) {
             if (!powerUp.isCollected()) {
@@ -187,7 +185,7 @@ public class GamePanel extends JPanel implements KeyListener {
                 g.drawImage(powerUpImg, powerUp.getX(), powerUp.getY(), 
                           powerUp.getWidth(), powerUp.getHeight(), this);
             } else {
-                // Draw power-up timers
+
                 int y = 50;
                 if (axel.hasDoubleJump()) {
                     int timeLeft = (int)((axel.getDoubleJumpEndTime() - System.currentTimeMillis()) / 1000);
@@ -218,16 +216,11 @@ public class GamePanel extends JPanel implements KeyListener {
             case KeyEvent.VK_LEFT -> axel.moveLeft();
             case KeyEvent.VK_RIGHT -> axel.moveRight();
             case KeyEvent.VK_UP -> {
-                // Just try to jump, sound will be played when jump is successful
                 axel.jump(this);
             }
             case KeyEvent.VK_DOWN -> axel.dive();
         }
         
-        // Reset jump sound when player lands
-        if (!wasOnBlock && axel.checkStandingOnBlock()) {
-            canPlayJumpSound = true;
-        }
         wasOnBlock = axel.checkStandingOnBlock();
     }
 
@@ -299,8 +292,5 @@ public class GamePanel extends JPanel implements KeyListener {
         }
     }
 
-    // Add this method to reset jump sound flag
-    public void resetJumpSound() {
-        canPlayJumpSound = true;
-    }
+
 }

@@ -12,7 +12,6 @@ public class MainMenu extends JPanel {
     private final int PANEL_HEIGHT = 600;
     private static Clip backgroundMusic;
     private static Clip clickSound;
-    private Image backgroundImage;
     private Image yodaScreen;
     private Image ninjaScreen;
 
@@ -26,16 +25,15 @@ public class MainMenu extends JPanel {
 
     private void loadAudioAndImages() {
         try {
-            // Load theme backgrounds
+            
             yodaScreen = ImageIO.read(new File("media/yodascreen.png"));
             ninjaScreen = ImageIO.read(new File("media/ninjascreen.png"));
             
-            // Load and prepare background music
+
             AudioInputStream audioStream = AudioSystem.getAudioInputStream(new File("media/homepage.wav"));
             backgroundMusic = AudioSystem.getClip();
             backgroundMusic.open(audioStream);
 
-            // Load and prepare click sound
             AudioInputStream clickStream = AudioSystem.getAudioInputStream(new File("media/click.wav"));
             clickSound = AudioSystem.getClip();
             clickSound.open(clickStream);
@@ -73,16 +71,15 @@ public class MainMenu extends JPanel {
         setPreferredSize(new Dimension(PANEL_WIDTH, PANEL_HEIGHT));
         setOpaque(false); 
 
-        // Title
+       
         JLabel titleLabel = new JLabel("HOP!");
         titleLabel.setFont(new Font("Arial", Font.BOLD, 48));
         titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        // Create panel for buttons
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
 
-        // Play Button
+
         JButton playButton = new JButton("Play Game");
         playButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         playButton.addActionListener(e -> {
@@ -90,7 +87,7 @@ public class MainMenu extends JPanel {
             startGame();
         });
 
-        // Theme Button
+
         JButton themeButton = new JButton("Choose Theme");
         themeButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         themeButton.addActionListener(e -> {
@@ -98,12 +95,11 @@ public class MainMenu extends JPanel {
             chooseTheme();
         });
 
-        // Add buttons to panel
+
         buttonPanel.add(playButton);
         buttonPanel.add(Box.createHorizontalStrut(10));
         buttonPanel.add(themeButton);
 
-        // Add components
         add(Box.createVerticalStrut(50));
         add(titleLabel);
         add(Box.createVerticalStrut(50));
@@ -127,11 +123,11 @@ public class MainMenu extends JPanel {
         if (choice == 0) {
             hop.setTheme(Theme.STAR_WARS);
             playClickSound();
-            repaint(); // Add this to refresh background
+            repaint(); 
         } else if (choice == 1) {
             playClickSound();
             hop.setTheme(Theme.JAPAN);
-            repaint(); // Add this to refresh background
+            repaint(); 
         }
     }
 
@@ -139,7 +135,7 @@ public class MainMenu extends JPanel {
         //stopBackgroundMusic();
         frame.setVisible(false);
         frame.getContentPane().removeAll();
-        hop.reset(); // Reset the game before starting
+        hop.reset();
         frame.add(new Start(frame, hop));
         frame.pack();
         frame.revalidate();

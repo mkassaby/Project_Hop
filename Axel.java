@@ -1,3 +1,5 @@
+/*La classe dl'axel represente le charactere dont on joue avec, les mecaniques des mouvements sont ici */
+
 public class Axel {
     public static final double MAX_FALL_SPEED = -20;
     public static final double JUMP_SPEED = 18;
@@ -9,31 +11,32 @@ public class Axel {
     public static final int AXEL_HEIGHT = 10;
     public static final int BLOCK_HEIGHT = 10;
 
-    private int x, y;
+    private int x, y; //coordonnes
 
+
+    //mouvements
     private boolean falling;
     private boolean jumping;
     private boolean diving;
     private boolean left;
     private boolean right;
+    private boolean canJump = true; 
+    private boolean hasDoubleJump = false;
+    private boolean canDoubleJump = false; 
+    private boolean hasSpeedBoost = false;
 
     private boolean surviving;
 
     private final Field field;
 
+
+    //vitesse et temps non donner par le sujet
     private double ySpeed;
-
-    private boolean canJump = true; 
-    private boolean hasDoubleJump = false;
     private long doubleJumpStartTime;
-    private static final long DOUBLE_JUMP_DURATION = 10000; // 5 seconds
-    private boolean canDoubleJump = false;  // Add this new field
-
-    private static final double NORMAL_LATERAL_SPEED = 10;
-    private static final long SPEED_BOOST_DURATION = 10000; // 10 seconds
-    
-    private boolean hasSpeedBoost = false;
     private long speedBoostStartTime;
+    private static final long DOUBLE_JUMP_DURATION = 10000; 
+    private static final long SPEED_BOOST_DURATION = 10000; 
+    
 
     public Axel(Field f, int x, int y) {
         this.field = f;
@@ -43,7 +46,13 @@ public class Axel {
     }
 
     public void computeMove(int difficulty) {
-        double currentLateralSpeed = hasSpeedBoost ? NORMAL_LATERAL_SPEED * 2 : NORMAL_LATERAL_SPEED;
+        /*methode mecanique des mouvements */
+        double currentLateralSpeed;
+        if (hasSpeedBoost) {
+            currentLateralSpeed = LATERAL_SPEED * 2;
+        } else {
+            currentLateralSpeed = LATERAL_SPEED;
+        } //un pouvoir dans le jeu
         
         if (left && x > 0) x -= currentLateralSpeed;
         if (right && x < field.width - AXEL_WIDTH) x += currentLateralSpeed;
@@ -55,12 +64,12 @@ public class Axel {
         } else {
             falling = false;
             canJump = true;
-            canDoubleJump = true;  
+            //canDoubleJump = true;  
             ySpeed = 0;
         }
 
         if (jumping && canJump) {
-            ySpeed = JUMP_SPEED + difficulty;
+            ySpeed = JUMP_SPEED + difficulty; //vitesse qui augmente avec difficulte
             falling = true;
             jumping = false;
             canJump = false;
@@ -68,7 +77,7 @@ public class Axel {
 
 
         if (falling) {
-            double gr = GRAVITY * (1 + (difficulty * 0.1));
+            double gr = GRAVITY * (1 + (difficulty * 0.1)); //gravite qui augmente avec la difficulte
             ySpeed -= gr * 1.5;
             if (diving) {
                 ySpeed -= DIVE_SPEED;
@@ -91,21 +100,26 @@ public class Axel {
     }
 
     public void update(int difficulty) {
+        /*methode qui gere les mouvements et  pouvoirs de l'axel*/
         computeMove(difficulty);
         updatePowerUps();
     }
 
     private void updatePowerUps() {
-        // Check if double jump has expired
+        /*methode qui verifie le temps de l'usage des pouvoirs (10 secondes) */
         if (hasDoubleJump && System.currentTimeMillis() - doubleJumpStartTime > DOUBLE_JUMP_DURATION) {
             hasDoubleJump = false;
         }
-        // Check if speed boost has expired
         if (hasSpeedBoost && System.currentTimeMillis() - speedBoostStartTime > SPEED_BOOST_DURATION) {
             hasSpeedBoost = false;
         }
     }
 
+
+    /*en dessous on a deux methodes qui verifient: 
+     * si l'axel est sur un block, sans mouvements
+     * si l'axel tombe sur un block (donc verifie si le fall de l'axel vient sur le block)
+     */
     public boolean checkStandingOnBlock() {
         for (Block block : field.getBlocks()) {
             if ((x + AXEL_WIDTH/2 > block.getX()) && 
@@ -159,11 +173,11 @@ public class Axel {
             jumping = true;
             canJump = false;
             canDoubleJump = hasDoubleJump;
-            panel.playJumpSound();  // Notify when regular jump happens
+            panel.playJumpSound();  
         } else if (hasDoubleJump && canDoubleJump && falling) {
             ySpeed = JUMP_SPEED / 2;
             canDoubleJump = false;
-            panel.playJumpSound(); // Notify when double jump happens
+            panel.playJumpSound();
         }
     }
 
@@ -194,7 +208,6 @@ public class Axel {
         return speedBoostStartTime + SPEED_BOOST_DURATION;
     }
 
-    // Add these methods to access double jump status and end time
     public boolean hasDoubleJump() {
         return hasDoubleJump;
     }
