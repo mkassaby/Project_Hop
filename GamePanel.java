@@ -149,7 +149,7 @@ public class GamePanel extends JPanel implements KeyListener {
         
         if (currentTheme == Theme.STAR_WARS) {
             g.drawImage(StarsImg, 0, 0, field.width, field.height, this);
-            g.setColor(Color.YELLOW);
+            //g.setColor(Color.YELLOW);
             for (Block block : field.getBlocks()) {
                 g.drawImage(glowblockImg, block.getX(), block.getY(), block.getWidth(), BLOCK_HEIGHT, this);
             }
@@ -161,7 +161,7 @@ public class GamePanel extends JPanel implements KeyListener {
                 g.drawImage(jblocksImg, block.getX(), block.getY(), block.getWidth(), BLOCK_HEIGHT, this);
             }
             g.drawImage(doodleImg, axel.getX() - AXEL_WIDTH/2, axel.getY() - ((AXEL_HEIGHT * 3) - 5), AXEL_WIDTH * 3, AXEL_HEIGHT * 3, this);
-            g.setColor(Color.RED);
+            //g.setColor(Color.RED);
         }
 
 

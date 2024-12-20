@@ -64,7 +64,7 @@ public class GameOverScreen extends JPanel {
             hop.showMainMenu();
         });
 
-        // Add components with spacing
+        
         add(Box.createVerticalStrut(50));
         add(gameOverLabel);
         add(Box.createVerticalStrut(30));
