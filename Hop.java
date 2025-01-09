@@ -12,6 +12,7 @@ public class Hop {
     private final JFrame frame;
     private Field field;
     private Axel axel;
+    //private Axel2 axel2;
     private Timer timer;
     private GamePanel gamePanel;
     private double difficulty = 1.0;
@@ -69,6 +70,7 @@ public class Hop {
         }
         this.field = new Field(WIDTH, HEIGHT);
         this.axel = new Axel(field, field.getFirstBlock().getX()+(field.getFirstBlock().getWidth()/2), field.getFirstBlock().getY());
+        //this.axel2 = new Axel2(field, -field.getFirstBlock().getX() + (field.getFirstBlock().getWidth()/2), -field.getFirstBlock().getY());
         this.gamePanel = new GamePanel(field, axel, currentTheme);
         this.difficulty = 1.0;
     }
@@ -101,6 +103,7 @@ public class Hop {
     public void round() {
         field.update(difficulty); 
         axel.update(gamePanel.getLevel());
+        //axel2.update(gamePanel.getLevel());
         gamePanel.checkPowerUpCollision(); 
         gamePanel.addScore();     
         difficulty = 1.0 + (gamePanel.getScore() / 1000.0);

@@ -1,6 +1,5 @@
-/*La classe dl'axel represente le charactere dont on joue avec, les mecaniques des mouvements sont ici */
+public class Axel2 {
 
-public class Axel {
     public static final double MAX_FALL_SPEED = -20;
     public static final double JUMP_SPEED = 18;
     public static final double GRAVITY = 1;
@@ -38,7 +37,7 @@ public class Axel {
     private static final long SPEED_BOOST_DURATION = 10000; 
     
 
-    public Axel(Field f, int x, int y) {
+    public Axel2(Field f, int x, int y) {
         this.field = f;
         this.x = x;
         this.y = y;
@@ -216,4 +215,5 @@ public class Axel {
     public long getDoubleJumpEndTime() {
         return doubleJumpStartTime + DOUBLE_JUMP_DURATION;
     }
+    
 }

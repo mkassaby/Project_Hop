@@ -144,6 +144,25 @@ public class MainMenu extends JPanel {
         frame.setLocationRelativeTo(null);
     }
 
+    private void MultiplayerMode() {
+        Object[] options = {"1", "2"};
+        int choice = JOptionPane.showOptionDialog(frame,
+        "How many players :",
+        "Theme Selection",
+        JOptionPane.YES_NO_OPTION,
+        JOptionPane.QUESTION_MESSAGE,
+        null,
+        options,
+        options[0]);
+    
+    if (choice == 0) {
+  
+    } else if (choice == 1) {
+ 
+    }
+
+    }
+
     public static void stopBackgroundMusic() {
         if (backgroundMusic != null && backgroundMusic.isRunning()) {
             backgroundMusic.stop();

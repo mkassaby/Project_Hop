@@ -13,12 +13,14 @@ public class GamePanel extends JPanel implements KeyListener {
     private static final int AXEL_HEIGHT = 10;
 
     private final Axel axel;
+    //private final Axel2 axel2;
     private final Field field;
     private final Theme currentTheme;
 
     private int score = 0;
     private int lastBlockY = -1; 
     private boolean wasOnBlock = false;
+    //private boolean wasOnBlock2 = false;
     private double totalScrollSinceLastLanding = 0;
 
     //images
@@ -37,6 +39,7 @@ public class GamePanel extends JPanel implements KeyListener {
         this.field = field;
         this.axel = axel;
         this.currentTheme = theme;
+        //this.axel2 = axel2;
 
         setPreferredSize(new Dimension(field.width, field.height));
         setFocusable(true);
@@ -218,10 +221,15 @@ public class GamePanel extends JPanel implements KeyListener {
             case KeyEvent.VK_UP -> {
                 axel.jump(this);
             }
-            case KeyEvent.VK_DOWN -> axel.dive();
+            /*case KeyEvent.VK_DOWN -> axel.dive();
+            case KeyEvent.VK_Z -> axel2.jump(this);
+            case KeyEvent.VK_Q -> axel2.moveLeft();
+            case KeyEvent.VK_S -> axel2.dive();
+            case KeyEvent.VK_D -> axel2.moveRight();*/
         }
         
         wasOnBlock = axel.checkStandingOnBlock();
+        //wasOnBlock2 = axel2.checkStandingOnBlock();
     }
 
 
